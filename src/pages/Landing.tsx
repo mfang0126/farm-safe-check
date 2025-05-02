@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
 import { CheckCircle, Calendar, FileText, ChevronRight } from 'lucide-react';
@@ -161,12 +160,9 @@ const Landing = () => {
           <p className="text-xl mb-8 max-w-2xl mx-auto opacity-90">
             No credit card needed. See how FarmSafe360 can help protect your farm, workers, and bottom line.
           </p>
-          <div className="flex flex-col md:flex-row gap-4 justify-center">
+          <div className="flex justify-center">
             <Button size="lg" className="bg-white text-primary hover:bg-gray-100 text-lg py-6 px-8 rounded-full" asChild>
-              <Link to="/signup">Sign Up Free</Link>
-            </Button>
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 text-lg py-6 px-8 rounded-full" asChild>
-              <Link to="/contact">Contact Sales</Link>
+              <Link to="/signup">Sign Up</Link>
             </Button>
           </div>
           <p className="mt-6 text-sm opacity-80">Free trial includes all features for 30 days. No obligations.</p>

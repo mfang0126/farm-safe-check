@@ -52,8 +52,6 @@ const Navbar = () => {
           </DropdownMenu>
           
           <Link to="/pricing" className="text-gray-700 hover:text-primary font-medium">Pricing</Link>
-          <Link to="/about" className="text-gray-700 hover:text-primary font-medium">About</Link>
-          <Link to="/contact" className="text-gray-700 hover:text-primary font-medium">Contact</Link>
         </div>
         
         <div className="hidden md:flex items-center gap-2">
@@ -85,8 +83,6 @@ const Navbar = () => {
               <Link to="/resources" className="text-gray-700 hover:text-primary py-1" onClick={toggleMenu}>Resource Hub</Link>
             </div>
             <Link to="/pricing" className="text-gray-700 hover:text-primary font-medium py-2" onClick={toggleMenu}>Pricing</Link>
-            <Link to="/about" className="text-gray-700 hover:text-primary font-medium py-2" onClick={toggleMenu}>About</Link>
-            <Link to="/contact" className="text-gray-700 hover:text-primary font-medium py-2" onClick={toggleMenu}>Contact</Link>
             
             <div className="flex flex-col gap-2 mt-2">
               <Button variant="outline" asChild className="w-full justify-center" onClick={toggleMenu}>
