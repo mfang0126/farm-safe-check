@@ -43,7 +43,7 @@ const Navbar = () => {
                 <Link to="/dashboard/maintenance" className="cursor-pointer">Maintenance Scheduler</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link to="/dashboard/risk-dashboard" className="cursor-pointer">Risk Dashboard</Link>
+                <Link to="/dashboard/risk" className="cursor-pointer">Risk Dashboard</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link to="/dashboard/resources" className="cursor-pointer">Resource Hub</Link>
@@ -79,7 +79,7 @@ const Navbar = () => {
               <Link to="/dashboard/equipment" className="text-gray-700 hover:text-primary py-1" onClick={toggleMenu}>Equipment Registry</Link>
               <Link to="/dashboard/checklists" className="text-gray-700 hover:text-primary py-1" onClick={toggleMenu}>Safety Checklists</Link>
               <Link to="/dashboard/maintenance" className="text-gray-700 hover:text-primary py-1" onClick={toggleMenu}>Maintenance Scheduler</Link>
-              <Link to="/dashboard/risk-dashboard" className="text-gray-700 hover:text-primary py-1" onClick={toggleMenu}>Risk Dashboard</Link>
+              <Link to="/dashboard/risk" className="text-gray-700 hover:text-primary py-1" onClick={toggleMenu}>Risk Dashboard</Link>
               <Link to="/dashboard/resources" className="text-gray-700 hover:text-primary py-1" onClick={toggleMenu}>Resource Hub</Link>
             </div>
             <Link to="/pricing" className="text-gray-700 hover:text-primary font-medium py-2" onClick={toggleMenu}>Pricing</Link>

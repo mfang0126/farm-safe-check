@@ -18,6 +18,7 @@ import Equipment from "./pages/Equipment";
 import Checklists from "./pages/Checklists";
 import ResourceHub from "./pages/ResourceHub";
 import Maintenance from "./pages/Maintenance";
+import RiskDashboard from "./pages/RiskDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -47,6 +48,7 @@ const App = () => (
           <Route path="/dashboard/checklists" element={<Checklists />} />
           <Route path="/dashboard/maintenance" element={<Maintenance />} />
           <Route path="/dashboard/resources" element={<ResourceHub />} />
+          <Route path="/dashboard/risk" element={<RiskDashboard />} />
           
           {/* Catch All */}
           <Route path="*" element={<NotFound />} />
