@@ -81,7 +81,7 @@ const RiskDashboard = () => {
     {
       id: '4',
       title: 'Machinery Entanglement',
-      description: 'Worker's clothing caught in unshielded PTO shaft',
+      description: 'Worker\'s clothing caught in unshielded PTO shaft',
       date: '2025-04-15',
       location: 'Equipment Barn',
       type: 'machinery',
