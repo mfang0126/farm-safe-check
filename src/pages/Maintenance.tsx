@@ -1,17 +1,7 @@
 
 import { useState } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
-import {
-  Calendar,
-  CalendarCell,
-  CalendarGrid,
-  CalendarHeader,
-  CalendarHeading,
-  CalendarMonthHeading,
-  CalendarNextButton,
-  CalendarPrevButton,
-  CalendarWeek
-} from "@/components/ui/calendar";
+import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -220,16 +210,16 @@ const Maintenance = () => {
     });
   };
 
-  // Generate calendar cell content
-  const renderCalendarCell = (date: Date) => {
-    const tasksForDate = getTasksForDate(date);
+  // Generate calendar day rendering
+  const renderCalendarDay = (day: Date, modifiers: any) => {
+    const tasksForDate = getTasksForDate(day);
     const hasOverdue = tasksForDate.some(task => task.status === 'overdue');
     const hasUpcoming = tasksForDate.some(task => task.status === 'upcoming');
     const hasInProgress = tasksForDate.some(task => task.status === 'in-progress');
     
     return (
       <div className="h-full w-full p-1">
-        <div className="text-right">{format(date, 'd')}</div>
+        <div className="text-right">{format(day, 'd')}</div>
         {tasksForDate.length > 0 && (
           <div className="flex gap-1 mt-1 flex-wrap">
             {hasOverdue && <div className="w-2 h-2 rounded-full bg-red-500"></div>}
@@ -613,20 +603,8 @@ const Maintenance = () => {
                   mode="single"
                   selected={selectedDate}
                   onSelect={setSelectedDate}
-                  className="rounded-md border"
-                >
-                  <CalendarHeader>
-                    <CalendarPrevButton />
-                    <CalendarHeading />
-                    <CalendarNextButton />
-                  </CalendarHeader>
-                  <CalendarGrid>
-                    <CalendarWeek />
-                    {Array(42).fill(null).map((_, i) => (
-                      <CalendarCell key={i} renderCell={renderCalendarCell} />
-                    ))}
-                  </CalendarGrid>
-                </Calendar>
+                  className="rounded-md border pointer-events-auto"
+                />
                 
                 <div className="mt-8">
                   <h3 className="font-medium text-lg mb-4">
