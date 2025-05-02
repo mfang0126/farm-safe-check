@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -67,7 +66,7 @@ const SignUp = () => {
         <div className="text-center relative">
           <Link to="/" className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center text-gray-600 hover:text-primary transition-colors">
             <ChevronLeft size={16} />
-            <span className="ml-1">Back</span>
+            <span className="ml-1">Back to Home</span>
           </Link>
           <h1 className="text-3xl font-bold">Create Your Account</h1>
           <p className="text-gray-600 mt-2">Start your 30-day free trial of FarmSafe360</p>

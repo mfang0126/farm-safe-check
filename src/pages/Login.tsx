@@ -56,7 +56,7 @@ const Login = () => {
         <div className="text-center relative">
           <Link to="/" className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center text-gray-600 hover:text-primary transition-colors">
             <ChevronLeft size={16} />
-            <span className="ml-1">Back</span>
+            <span className="ml-1">Back to Home</span>
           </Link>
           <h1 className="text-3xl font-bold">Welcome Back</h1>
           <p className="text-gray-600 mt-2">Sign in to your FarmSafe360 account</p>
