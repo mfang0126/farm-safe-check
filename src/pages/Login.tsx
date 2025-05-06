@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -12,42 +12,39 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
 import { ChevronLeft } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
   const navigate = useNavigate();
+  const { signIn, user } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // If user is already logged in, redirect to dashboard
+  if (user) {
+    return <Navigate to="/dashboard" />;
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validate inputs
     if (!email || !password) {
-      toast({
-        title: "Error",
-        description: "Please fill in all fields",
-        variant: "destructive",
-      });
       return;
     }
     
-    // Simulate login process
     setIsLoading(true);
     
-    // Fake authentication - in a real app, you'd call an API
-    setTimeout(() => {
+    try {
+      await signIn(email, password);
+      // Navigation is handled by auth context
+    } catch (error) {
+      // Error is handled by auth context
+    } finally {
       setIsLoading(false);
-      // For demo, just navigate to dashboard
-      toast({
-        title: "Success",
-        description: "You have been logged in successfully",
-      });
-      navigate('/dashboard');
-    }, 1500);
+    }
   };
 
   return (

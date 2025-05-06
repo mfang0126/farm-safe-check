@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -12,8 +12,8 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
 import { ChevronLeft } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 const SignUp = () => {
   const [firstName, setFirstName] = useState('');
@@ -21,44 +21,39 @@ const SignUp = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
-  const navigate = useNavigate();
+  const { signUp, user } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // If user is already logged in, redirect to dashboard
+  if (user) {
+    return <Navigate to="/dashboard" />;
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validate inputs
     if (!firstName || !lastName || !email || !password) {
-      toast({
-        title: "Error",
-        description: "Please fill in all fields",
-        variant: "destructive",
-      });
       return;
     }
     
     // Validate password strength
     if (password.length < 8) {
-      toast({
-        title: "Error",
-        description: "Password must be at least 8 characters long",
-        variant: "destructive",
-      });
       return;
     }
     
-    // Simulate signup process
     setIsLoading(true);
     
-    // Fake registration - in a real app, you'd call an API
-    setTimeout(() => {
-      setIsLoading(false);
-      toast({
-        title: "Account created",
-        description: "Your account has been created successfully",
+    try {
+      await signUp(email, password, {
+        first_name: firstName,
+        last_name: lastName
       });
-      navigate('/dashboard');
-    }, 1500);
+      // Navigation is handled by auth context
+    } catch (error) {
+      // Error is handled by auth context
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

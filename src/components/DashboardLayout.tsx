@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Tractor, 
@@ -15,7 +15,6 @@ import {
   Bell
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,6 +23,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useAuth } from '@/contexts/AuthContext';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -32,8 +33,7 @@ interface DashboardLayoutProps {
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
-  const { toast } = useToast();
+  const { user, signOut } = useAuth();
 
   const navItems = [
     { icon: LayoutDashboard, name: 'Dashboard', path: '/dashboard' },
@@ -49,12 +49,13 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   };
 
   const handleLogout = () => {
-    // In a real application, this would call an API to log the user out
-    toast({
-      title: "Logged out",
-      description: "You have been logged out successfully",
-    });
-    navigate('/');
+    signOut();
+  };
+
+  // Get user initials for avatar
+  const getUserInitials = () => {
+    if (!user) return 'U';
+    return user.email?.charAt(0).toUpperCase() || 'U';
   };
 
   return (
@@ -106,10 +107,15 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="gap-2">
-                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white">
-                    <User size={16} />
-                  </div>
-                  <span className="hidden sm:inline">John Farmer</span>
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={user?.user_metadata?.avatar_url} />
+                    <AvatarFallback className="bg-primary text-white">
+                      {getUserInitials()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="hidden sm:inline">
+                    {user?.user_metadata?.first_name || user?.email?.split('@')[0] || 'User'}
+                  </span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
