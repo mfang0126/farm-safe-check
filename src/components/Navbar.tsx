@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-import { Menu, X, User } from 'lucide-react';
+import { Menu, X, User, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
@@ -97,8 +97,14 @@ const Navbar = () => {
             <Button variant="outline" asChild>
               <Link to="/login">Login</Link>
             </Button>
-            <Button className="bg-primary hover:bg-primary-600" asChild>
+            <Button variant="outline" asChild>
               <Link to="/signup">Sign Up</Link>
+            </Button>
+            <Button className="bg-primary hover:bg-primary-600" asChild>
+              <Link to="/dashboard" className="flex items-center gap-2">
+                <LayoutDashboard size={18} />
+                Dashboard
+              </Link>
             </Button>
           </div>
         )}
@@ -145,8 +151,14 @@ const Navbar = () => {
                   <Button variant="outline" asChild className="w-full justify-center" onClick={toggleMenu}>
                     <Link to="/login">Login</Link>
                   </Button>
-                  <Button className="bg-primary hover:bg-primary-600 w-full justify-center" asChild onClick={toggleMenu}>
+                  <Button variant="outline" asChild className="w-full justify-center" onClick={toggleMenu}>
                     <Link to="/signup">Sign Up</Link>
+                  </Button>
+                  <Button className="bg-primary hover:bg-primary-600 w-full justify-center" asChild onClick={toggleMenu}>
+                    <Link to="/dashboard" className="flex items-center gap-2">
+                      <LayoutDashboard size={18} />
+                      Dashboard
+                    </Link>
                   </Button>
                 </>
               )}
