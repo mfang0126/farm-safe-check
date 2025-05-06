@@ -34,20 +34,20 @@ const Dashboard = () => {
               Analytics
             </TabsTrigger>
           </TabsList>
+        
+          <TabsContent value="overview" className="m-0">
+            <OverviewTab />
+          </TabsContent>
+          
+          <TabsContent value="equipment" className="m-0">
+            <EquipmentTab />
+          </TabsContent>
+          
+          <TabsContent value="analytics" className="m-0">
+            <AnalyticsTab />
+          </TabsContent>
         </Tabs>
       </div>
-      
-      <TabsContent value="overview" className="m-0">
-        <OverviewTab />
-      </TabsContent>
-      
-      <TabsContent value="equipment" className="m-0">
-        <EquipmentTab />
-      </TabsContent>
-      
-      <TabsContent value="analytics" className="m-0">
-        <AnalyticsTab />
-      </TabsContent>
     </div>
   );
 };
