@@ -6,7 +6,7 @@ import DashboardLayout from './DashboardLayout';
 const ProtectedRoute = () => {
   const { user, loading } = useAuth();
   
-  // If authentication is still loading, show nothing or a loading spinner
+  // If authentication is still loading, show a loading spinner
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -15,12 +15,8 @@ const ProtectedRoute = () => {
     );
   }
   
-  // If not authenticated, redirect to login
-  if (!user) {
-    return <Navigate to="/login" />;
-  }
-  
-  // If authenticated, render the child routes inside the dashboard layout
+  // Allow access to the dashboard without authentication
+  // The dashboard layout will be rendered for all users
   return (
     <DashboardLayout>
       <Outlet />
