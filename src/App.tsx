@@ -21,6 +21,7 @@ import Checklists from "./pages/Checklists";
 import ResourceHub from "./pages/ResourceHub";
 import Maintenance from "./pages/Maintenance";
 import RiskDashboard from "./pages/RiskDashboard";
+import IncidentReporting from "./pages/IncidentReporting";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -54,6 +55,7 @@ const App = () => (
               <Route path="/dashboard/maintenance" element={<Maintenance />} />
               <Route path="/dashboard/resources" element={<ResourceHub />} />
               <Route path="/dashboard/risk" element={<RiskDashboard />} />
+              <Route path="/dashboard/incidents" element={<IncidentReporting />} />
             </Route>
             
             {/* Catch All */}
