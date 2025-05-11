@@ -1,215 +1,255 @@
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
-import { ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip } from 'recharts';
-import { AlertTriangle, ShieldAlert, ShieldCheck, Clock, FileText } from 'lucide-react';
-import { SafetyIncident } from '@/types/incidents';
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { AlertTriangle, Bandage, Construction, TreePine } from 'lucide-react';
+import { IncidentType } from '@/types/incidents';
+import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie } from 'recharts';
 
-const IncidentDashboard = () => {
-  const [incidents, setIncidents] = useState<SafetyIncident[]>([]);
+// Mock incident data for the dashboard
+const incidentData = [
+  { month: 'Jan', count: 5 },
+  { month: 'Feb', count: 3 },
+  { month: 'Mar', count: 7 },
+  { month: 'Apr', count: 2 },
+  { month: 'May', count: 4 },
+];
 
-  useEffect(() => {
+const incidentsByType = [
+  { name: 'Injury', value: 12, color: '#ff4d4f' },
+  { name: 'Near Miss', value: 8, color: '#faad14' },
+  { name: 'Property Damage', value: 5, color: '#1890ff' },
+  { name: 'Environmental', value: 3, color: '#52c41a' },
+  { name: 'Other', value: 2, color: '#722ed1' },
+];
+
+const severityData = [
+  { name: 'Low', value: 15, color: '#52c41a' },
+  { name: 'Medium', value: 10, color: '#faad14' },
+  { name: 'High', value: 4, color: '#ff7a45' },
+  { name: 'Critical', value: 1, color: '#ff4d4f' },
+];
+
+const statusData = [
+  { name: 'Reported', value: 8, color: '#1890ff' },
+  { name: 'Investigating', value: 10, color: '#faad14' },
+  { name: 'Mitigated', value: 7, color: '#52c41a' },
+  { name: 'Resolved', value: 5, color: '#13c2c2' },
+];
+
+// Load saved incidents from localStorage
+const getSavedIncidents = () => {
+  try {
     const savedIncidents = localStorage.getItem('safety-incidents');
-    if (savedIncidents) {
-      setIncidents(JSON.parse(savedIncidents));
+    return savedIncidents ? JSON.parse(savedIncidents) : [];
+  } catch (error) {
+    console.error('Error loading incidents:', error);
+    return [];
+  }
+};
+
+// Function to get type statistics based on saved incidents
+const getIncidentTypeStats = (incidents: any[]) => {
+  // Default to our mock data if no incidents exist
+  if (!incidents || incidents.length === 0) return incidentsByType;
+  
+  const typeCount = {
+    injury: 0,
+    'near-miss': 0,
+    'property-damage': 0,
+    environmental: 0,
+    other: 0,
+  };
+  
+  incidents.forEach((incident) => {
+    if (typeCount.hasOwnProperty(incident.type)) {
+      typeCount[incident.type as keyof typeof typeCount]++;
     }
-  }, []);
-
-  // Calculate stats
-  const totalIncidents = incidents.length;
-  const openIncidents = incidents.filter(
-    i => i.status === 'reported' || i.status === 'investigating'
-  ).length;
-  const resolvedIncidents = incidents.filter(i => i.status === 'resolved').length;
-  const criticalIncidents = incidents.filter(i => i.severity === 'critical').length;
+  });
   
-  // Prepare chart data
-  const severityData = [
-    { name: 'Low', value: incidents.filter(i => i.severity === 'low').length || 0 },
-    { name: 'Medium', value: incidents.filter(i => i.severity === 'medium').length || 0 },
-    { name: 'High', value: incidents.filter(i => i.severity === 'high').length || 0 },
-    { name: 'Critical', value: incidents.filter(i => i.severity === 'critical').length || 0 }
+  return [
+    { name: 'Injury', value: typeCount.injury, color: '#ff4d4f' },
+    { name: 'Near Miss', value: typeCount['near-miss'], color: '#faad14' },
+    { name: 'Property Damage', value: typeCount['property-damage'], color: '#1890ff' },
+    { name: 'Environmental', value: typeCount.environmental, color: '#52c41a' },
+    { name: 'Other', value: typeCount.other, color: '#722ed1' },
   ];
-  
-  const typeData = [
-    { name: 'Injury', value: incidents.filter(i => i.type === 'injury').length || 0 },
-    { name: 'Near Miss', value: incidents.filter(i => i.type === 'near-miss').length || 0 },
-    { name: 'Property', value: incidents.filter(i => i.type === 'property-damage').length || 0 },
-    { name: 'Environment', value: incidents.filter(i => i.type === 'environmental').length || 0 },
-    { name: 'Other', value: incidents.filter(i => i.type === 'other').length || 0 }
-  ];
-  
-  const COLORS = ['#0088FE', '#FFBB28', '#FF8042', '#FF0000', '#00C49F'];
+};
 
+const IncidentDashboard: React.FC = () => {
+  const [incidents] = useState(getSavedIncidents());
+  const typeStats = getIncidentTypeStats(incidents);
+  
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Total Incidents */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Incidents
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center">
-              <FileText className="h-5 w-5 text-primary mr-2" />
-              <div className="text-2xl font-bold">{totalIncidents}</div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        {/* Open Incidents */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Open Incidents
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center">
-              <Clock className="h-5 w-5 text-yellow-500 mr-2" />
-              <div className="text-2xl font-bold">{openIncidents}</div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        {/* Resolved Incidents */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Resolved Incidents
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center">
-              <ShieldCheck className="h-5 w-5 text-green-500 mr-2" />
-              <div className="text-2xl font-bold">{resolvedIncidents}</div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        {/* Critical Incidents */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Critical Incidents
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center">
-              <AlertTriangle className="h-5 w-5 text-red-500 mr-2" />
-              <div className="text-2xl font-bold">{criticalIncidents}</div>
-            </div>
-          </CardContent>
-        </Card>
+        <StatCard 
+          title="Total Reports" 
+          value={incidents.length || 30} 
+          description="Incidents reported"
+          icon={<AlertTriangle className="h-8 w-8 text-yellow-500" />}
+        />
+        <StatCard 
+          title="Open Incidents" 
+          value={incidents.filter((i: any) => i.status !== 'resolved').length || 18} 
+          description="Requiring action"
+          icon={<Construction className="h-8 w-8 text-blue-500" />}
+        />
+        <StatCard 
+          title="Injuries" 
+          value={incidents.filter((i: any) => i.type === 'injury').length || 12} 
+          description="Personnel affected"
+          icon={<Bandage className="h-8 w-8 text-red-500" />}
+        />
+        <StatCard 
+          title="Environmental" 
+          value={incidents.filter((i: any) => i.type === 'environmental').length || 3} 
+          description="Environmental incidents"
+          icon={<TreePine className="h-8 w-8 text-green-500" />}
+        />
       </div>
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Incidents by Severity */}
-        <Card className="col-span-1">
+        <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Incidents by Severity</CardTitle>
+            <CardTitle>Incidents Over Time</CardTitle>
+            <CardDescription>Monthly incident reports</CardDescription>
           </CardHeader>
-          <CardContent className="h-[300px] flex items-center justify-center">
-            {totalIncidents > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={severityData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={90}
-                    paddingAngle={2}
-                    dataKey="value"
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  >
-                    {severityData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="text-center">
-                <ShieldAlert className="h-10 w-10 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">No incident data to display</p>
-              </div>
-            )}
+          <CardContent className="pt-0 h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={incidentData}
+                margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="count" name="Incidents" fill="#8884d8" />
+              </BarChart>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
-        
-        {/* Incidents by Type */}
-        <Card className="col-span-1">
+
+        <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Incidents by Type</CardTitle>
+            <CardTitle>Incidents by Type</CardTitle>
+            <CardDescription>Distribution across categories</CardDescription>
           </CardHeader>
-          <CardContent className="h-[300px] flex items-center justify-center">
-            {totalIncidents > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={typeData}
-                  margin={{ top: 20, right: 30, left: 0, bottom: 20 }}
+          <CardContent className="pt-0 h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={typeStats}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                  nameKey="name"
+                  label={({name, percent}) => `${name}: ${(percent * 100).toFixed(0)}%`}
                 >
-                  <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                  <YAxis allowDecimals={false} />
-                  <Tooltip />
-                  <Bar dataKey="value" fill="#6366F1" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="text-center">
-                <ShieldAlert className="h-10 w-10 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">No incident data to display</p>
-              </div>
-            )}
+                  {typeStats.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
       </div>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Action Items Progress</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {totalIncidents > 0 ? (
-            <>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <div className="flex items-center">
-                    <Badge className="bg-red-100 text-red-800 mr-2">High</Badge>
-                    Install Guarding on Machinery
-                  </div>
-                  <span className="text-sm">50%</span>
-                </div>
-                <Progress value={50} className="h-2" />
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <div className="flex items-center">
-                    <Badge className="bg-yellow-100 text-yellow-800 mr-2">Medium</Badge>
-                    Update PPE Training Module
-                  </div>
-                  <span className="text-sm">25%</span>
-                </div>
-                <Progress value={25} className="h-2" />
-              </div>
-            </>
-          ) : (
-            <div className="text-center py-6">
-              <ShieldAlert className="h-10 w-10 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground">No action items to display</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Incidents by Severity</CardTitle>
+            <CardDescription>Impact assessment</CardDescription>
+          </CardHeader>
+          <CardContent className="pt-0 h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={severityData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                  nameKey="name"
+                  label={({name, percent}) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                >
+                  {severityData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Incidents by Status</CardTitle>
+            <CardDescription>Current processing state</CardDescription>
+          </CardHeader>
+          <CardContent className="pt-0 h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={statusData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                  nameKey="name"
+                  label={({name, percent}) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                >
+                  {statusData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
+
+// Stat Card Component for the top metrics
+interface StatCardProps {
+  title: string;
+  value: number;
+  description: string;
+  icon: React.ReactNode;
+}
+
+const StatCard = ({ title, value, description, icon }: StatCardProps) => (
+  <Card>
+    <CardContent className="p-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">{title}</p>
+          <p className="text-3xl font-bold">{value}</p>
+          <p className="text-xs text-muted-foreground mt-1">{description}</p>
+        </div>
+        <div>
+          {icon}
+        </div>
+      </div>
+    </CardContent>
+  </Card>
+);
 
 export default IncidentDashboard;

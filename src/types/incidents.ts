@@ -1,7 +1,7 @@
 
 export type IncidentSeverity = 'low' | 'medium' | 'high' | 'critical';
 export type IncidentStatus = 'reported' | 'investigating' | 'mitigated' | 'resolved';
-export type IncidentType = 'machinery' | 'chemical' | 'environmental' | 'physical' | 'other';
+export type IncidentType = 'injury' | 'near-miss' | 'property-damage' | 'environmental' | 'other';
 
 export interface SafetyIncident {
   id: string;
