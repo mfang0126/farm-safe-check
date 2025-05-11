@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Search, SlidersHorizontal, X } from 'lucide-react';
+import { Search, SlidersHorizontal, X, Circle } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -82,7 +82,7 @@ const TaskFilters = ({ filters, onFilterChange, onSortChange }: TaskFiltersProps
             </SelectContent>
           </Select>
 
-          <Select value={sortBy} onValueChange={(value) => onSortChange(value)}>
+          <Select value={filters.sortBy} onValueChange={(value) => onSortChange(value)}>
             <SelectTrigger className="w-[130px]">
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
@@ -213,3 +213,4 @@ const TaskFilters = ({ filters, onFilterChange, onSortChange }: TaskFiltersProps
 };
 
 export default TaskFilters;
+
