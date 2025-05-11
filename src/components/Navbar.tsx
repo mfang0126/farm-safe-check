@@ -55,6 +55,9 @@ const Navbar = () => {
                 <Link to="/dashboard/incidents" className="cursor-pointer">Incident Reporting</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
+                <Link to="/dashboard/training" className="cursor-pointer">Training Register</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
                 <Link to="/dashboard/risk" className="cursor-pointer">Risk Dashboard</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
@@ -129,6 +132,7 @@ const Navbar = () => {
               <Link to="/dashboard/checklists" className="text-gray-700 hover:text-primary py-1" onClick={toggleMenu}>Safety Checklists</Link>
               <Link to="/dashboard/maintenance" className="text-gray-700 hover:text-primary py-1" onClick={toggleMenu}>Maintenance Scheduler</Link>
               <Link to="/dashboard/incidents" className="text-gray-700 hover:text-primary py-1" onClick={toggleMenu}>Incident Reporting</Link>
+              <Link to="/dashboard/training" className="text-gray-700 hover:text-primary py-1" onClick={toggleMenu}>Training Register</Link>
               <Link to="/dashboard/risk" className="text-gray-700 hover:text-primary py-1" onClick={toggleMenu}>Risk Dashboard</Link>
               <Link to="/dashboard/resources" className="text-gray-700 hover:text-primary py-1" onClick={toggleMenu}>Resource Hub</Link>
             </div>
