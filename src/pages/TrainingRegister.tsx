@@ -7,9 +7,11 @@ import WorkerProfiles from '@/components/training/WorkerProfiles';
 import TrainingCalendar from '@/components/training/TrainingCalendar';
 import ComplianceDashboard from '@/components/training/ComplianceDashboard';
 import TrainingCourses from '@/components/training/TrainingCourses';
+import AddWorkerModal from '@/components/training/AddWorkerModal';
 
 const TrainingRegister = () => {
   const [activeTab, setActiveTab] = useState('workers');
+  const [isAddWorkerOpen, setIsAddWorkerOpen] = useState(false);
   
   return (
     <div className="space-y-6 animate-fade-in">
@@ -39,7 +41,7 @@ const TrainingRegister = () => {
         </TabsList>
         
         <TabsContent value="workers" className="mt-4">
-          <WorkerProfiles />
+          <WorkerProfiles onAddWorker={() => setIsAddWorkerOpen(true)} />
         </TabsContent>
         
         <TabsContent value="calendar" className="mt-4">
@@ -54,6 +56,11 @@ const TrainingRegister = () => {
           <ComplianceDashboard />
         </TabsContent>
       </Tabs>
+      
+      <AddWorkerModal 
+        isOpen={isAddWorkerOpen} 
+        onClose={() => setIsAddWorkerOpen(false)} 
+      />
     </div>
   );
 };

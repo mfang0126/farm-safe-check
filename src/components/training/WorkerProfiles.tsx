@@ -7,7 +7,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Calendar, FileCheck, AlertTriangle, Search, User, Plus } from 'lucide-react';
 import { mockWorkers } from './mock-data';
 
-const WorkerProfiles = () => {
+interface WorkerProfilesProps {
+  onAddWorker: () => void;
+}
+
+const WorkerProfiles = ({ onAddWorker }: WorkerProfilesProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedWorker, setSelectedWorker] = useState<string | null>(null);
   
@@ -56,7 +60,7 @@ const WorkerProfiles = () => {
             className="pl-10"
           />
         </div>
-        <Button className="w-full md:w-auto">
+        <Button className="w-full md:w-auto" onClick={onAddWorker}>
           <Plus size={16} className="mr-2" />
           Add New Worker
         </Button>
