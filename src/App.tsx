@@ -22,6 +22,7 @@ import ResourceHub from "./pages/ResourceHub";
 import Maintenance from "./pages/Maintenance";
 import RiskDashboard from "./pages/RiskDashboard";
 import IncidentReporting from "./pages/IncidentReporting";
+import TrainingRegister from "./pages/TrainingRegister";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -53,9 +54,10 @@ const App = () => (
               <Route path="/dashboard/equipment" element={<Equipment />} />
               <Route path="/dashboard/checklists" element={<Checklists />} />
               <Route path="/dashboard/maintenance" element={<Maintenance />} />
+              <Route path="/dashboard/incidents" element={<IncidentReporting />} />
+              <Route path="/dashboard/training" element={<TrainingRegister />} />
               <Route path="/dashboard/resources" element={<ResourceHub />} />
               <Route path="/dashboard/risk" element={<RiskDashboard />} />
-              <Route path="/dashboard/incidents" element={<IncidentReporting />} />
             </Route>
             
             {/* Catch All */}
