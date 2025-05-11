@@ -1,6 +1,7 @@
+
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
-import { CheckCircle, Calendar, FileText, ChevronRight } from 'lucide-react';
+import { CheckCircle, Calendar, FileText, ChevronRight, AlertTriangle } from 'lucide-react';
 
 const Landing = () => {
   const scrollToSignup = () => {
@@ -33,7 +34,7 @@ const Landing = () => {
         <div className="container mx-auto px-4">
           <h2 className="text-center mb-12">How FarmSafe360 Helps Your Farm</h2>
           
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-4 gap-8">
             {/* Benefit 1 */}
             <div className="bg-white p-8 rounded-xl shadow-md text-center">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-100 text-primary mb-4">
@@ -64,6 +65,17 @@ const Landing = () => {
               <h3 className="text-xl font-semibold mb-2">Digital Logs for Audits</h3>
               <p className="text-gray-600">
                 Maintain detailed digital records of all safety checks and maintenance for instant compliance reporting.
+              </p>
+            </div>
+            
+            {/* Benefit 4 - New Incident Reporting */}
+            <div className="bg-white p-8 rounded-xl shadow-md text-center">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-100 text-primary mb-4">
+                <AlertTriangle size={32} />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Incident Reporting</h3>
+              <p className="text-gray-600">
+                Quickly document safety incidents, track investigations, and manage corrective actions from anywhere.
               </p>
             </div>
           </div>
