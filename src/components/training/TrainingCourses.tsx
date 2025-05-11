@@ -16,7 +16,7 @@ const TrainingCourses = () => {
   
   // Group sessions by training type
   const getTrainingsByType = () => {
-    const trainings = {};
+    const trainings: Record<string, any[]> = {};
     mockTrainingSessions.forEach(session => {
       if (!trainings[session.type]) {
         trainings[session.type] = [];
