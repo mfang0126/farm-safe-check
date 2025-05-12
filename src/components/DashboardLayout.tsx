@@ -14,7 +14,8 @@ import {
   User,
   Bell,
   BookOpen,
-  AlertTriangle
+  AlertTriangle,
+  Heart
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -44,6 +45,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     { icon: Calendar, name: 'Maintenance', path: '/dashboard/maintenance' },
     { icon: AlertTriangle, name: 'Incidents', path: '/dashboard/incidents' },
     { icon: BookOpen, name: 'Training', path: '/dashboard/training' },
+    { icon: Heart, name: 'Worker Health', path: '/dashboard/health' },
     { icon: PieChart, name: 'Risk Dashboard', path: '/dashboard/risk' },
     { icon: FileText, name: 'Resources', path: '/dashboard/resources' },
   ];
