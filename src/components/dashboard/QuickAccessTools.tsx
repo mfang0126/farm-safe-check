@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
-import { Tractor, CheckSquare, Clock, BarChart3, FileText } from 'lucide-react';
+import { Tractor, CheckSquare, Clock, BarChart3, FileText, Heart } from 'lucide-react';
 
 export const QuickAccessTools = () => {
   const { toast } = useToast();
@@ -22,7 +22,7 @@ export const QuickAccessTools = () => {
         <CardDescription>All your essential farm safety tools in one place</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
           <Button 
             variant="outline" 
             className="flex flex-col h-24 items-center justify-center gap-2 hover:bg-primary hover:text-white transition-colors"
@@ -80,6 +80,18 @@ export const QuickAccessTools = () => {
             <Link to="/dashboard/resources">
               <FileText size={24} />
               <span>Resource Hub</span>
+            </Link>
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            className="flex flex-col h-24 items-center justify-center gap-2 hover:bg-primary hover:text-white transition-colors"
+            onClick={() => handleToolClick("Worker Health")}
+            asChild
+          >
+            <Link to="/dashboard/health">
+              <Heart size={24} />
+              <span>Worker Health</span>
             </Link>
           </Button>
         </div>

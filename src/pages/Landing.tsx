@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
-import { CheckCircle, Calendar, FileText, ChevronRight, AlertTriangle, BookOpen } from 'lucide-react';
+import { CheckCircle, Calendar, FileText, ChevronRight, AlertTriangle, BookOpen, Heart } from 'lucide-react';
 
 const Landing = () => {
   const scrollToSignup = () => {
@@ -34,7 +34,7 @@ const Landing = () => {
         <div className="container mx-auto px-4">
           <h2 className="text-center mb-12">How FarmSafe360 Helps Your Farm</h2>
           
-          <div className="grid md:grid-cols-5 gap-8">
+          <div className="grid md:grid-cols-6 gap-8">
             {/* Benefit 1 */}
             <div className="bg-white p-8 rounded-xl shadow-md text-center">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-100 text-primary mb-4">
@@ -87,6 +87,17 @@ const Landing = () => {
               <h3 className="text-xl font-semibold mb-2">Training Register</h3>
               <p className="text-gray-600">
                 Track worker certifications, schedule training sessions, and ensure compliance with safety regulations.
+              </p>
+            </div>
+
+            {/* Benefit 6 - Worker Health */}
+            <div className="bg-white p-8 rounded-xl shadow-md text-center">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-100 text-primary mb-4">
+                <Heart size={32} />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Worker Health</h3>
+              <p className="text-gray-600">
+                Manage worker health profiles, medical accommodations, and fitness for work assessments all in one place.
               </p>
             </div>
           </div>
