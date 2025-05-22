@@ -1,128 +1,266 @@
 
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
-import { CheckCircle, Calendar, FileText, ChevronRight, AlertTriangle, BookOpen, Heart } from 'lucide-react';
+import { CheckCircle, Calendar, FileText, ChevronRight, AlertTriangle, BookOpen, Heart, Star, Shield, CheckSquare, Calculator, Clock } from 'lucide-react';
 
 const Landing = () => {
   const scrollToSignup = () => {
     document.getElementById('signup-section')?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const watchDemo = () => {
+    // In a real app, this would open a modal with a demo video
+    alert("Demo video would play here");
+  };
+
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="hero-section min-h-[80vh] flex items-center section-padding">
+      {/* Hero Section - Redesigned */}
+      <section className="hero-section min-h-[80vh] flex items-center section-padding relative">
         <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="mb-6 font-bold animate-fade-in">Farm Equipment Safety Made Simple</h1>
-            <p className="text-xl md:text-2xl text-gray-700 mb-8 animate-fade-in">
-              Stay compliant, protect your workers, and reduce risk with easy digital safety checks.
-            </p>
-            <Button 
-              size="lg" 
-              className="bg-primary hover:bg-primary-600 text-lg py-6 px-8 rounded-full shadow-lg animate-fade-in"
-              onClick={scrollToSignup}
-            >
-              Get Started Free
-            </Button>
+          <div className="max-w-4xl mx-auto">
+            <div className="flex flex-col md:flex-row gap-8 items-center">
+              <div className="md:w-3/5 text-left">
+                <div className="mb-4 inline-flex items-center px-3 py-1 rounded-full bg-primary-100 text-primary text-sm">
+                  <Shield size={16} className="mr-2" /> Trusted by 500+ Australian farms
+                </div>
+                <h1 className="mb-6 font-bold text-4xl md:text-5xl text-left">Reduce Farm Safety Incidents by 60% with Digital Safety Management</h1>
+                <p className="text-xl md:text-2xl text-gray-700 mb-8">
+                  Join 500+ Australian farms who've eliminated paperwork, ensured compliance, and protected their workers with our all-in-one safety platform
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 mb-8">
+                  <Button 
+                    size="lg" 
+                    className="bg-primary hover:bg-primary-600 text-lg py-6 px-8 rounded-full shadow-lg"
+                    onClick={scrollToSignup}
+                  >
+                    Start Free 30-Day Trial
+                  </Button>
+                  <Button 
+                    size="lg" 
+                    variant="outline"
+                    className="text-lg py-6 px-8 rounded-full"
+                    onClick={watchDemo}
+                  >
+                    Watch 2-Minute Demo
+                  </Button>
+                </div>
+                
+                {/* Featured Testimonial */}
+                <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100 flex items-start gap-4">
+                  <div className="w-16 h-16 rounded-full bg-gray-300 flex-shrink-0 overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1472396961693-142e6e269027?auto=format&fit=crop&q=80" alt="Client" className="w-full h-full object-cover" />
+                  </div>
+                  <div>
+                    <div className="flex mb-2">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star key={star} size={18} fill="#FFD700" color="#FFD700" />
+                      ))}
+                    </div>
+                    <p className="text-gray-600 italic mb-2">
+                      "FarmSafe360 cut our safety incidents by 72% in the first year. The ROI is incredible."
+                    </p>
+                    <p className="font-medium">John D., Safety Manager at Murray River Farms</p>
+                  </div>
+                </div>
+              </div>
+              <div className="md:w-2/5">
+                <div className="bg-white p-6 rounded-xl shadow-xl border border-gray-200">
+                  <img 
+                    src="https://images.unsplash.com/photo-1472396961693-142e6e269027?auto=format&fit=crop&q=80" 
+                    alt="Farm safety dashboard on tablet" 
+                    className="rounded-lg w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Trust badges */}
+        <div className="absolute bottom-8 left-0 right-0">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto flex justify-center items-center gap-4 flex-wrap">
+              <div className="bg-white py-2 px-4 rounded shadow text-sm text-gray-600">ISO 45001 Certified</div>
+              <div className="bg-white py-2 px-4 rounded shadow text-sm text-gray-600">99.9% Uptime</div>
+              <div className="bg-white py-2 px-4 rounded shadow text-sm text-gray-600">Data Protection Compliant</div>
+              <div className="bg-white py-2 px-4 rounded shadow text-sm text-gray-600">SOC 2 Compliant</div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Core Benefits Section */}
-      <section className="bg-gray-50 section-padding">
+      {/* Problem Section */}
+      <section className="bg-gray-50 py-16">
         <div className="container mx-auto px-4">
-          <h2 className="text-center mb-12">How FarmSafe360 Helps Your Farm</h2>
+          <div className="max-w-4xl mx-auto text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">Tired of Safety Management Chaos?</h2>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="bg-white p-6 rounded-lg shadow-md text-left">
+                <CheckSquare size={24} className="text-red-500 mb-4" />
+                <h3 className="text-xl font-semibold mb-2">Worried about workplace accidents?</h3>
+                <p className="text-gray-600">Incidents that could shut down your operation and cost thousands in damages.</p>
+              </div>
+              
+              <div className="bg-white p-6 rounded-lg shadow-md text-left">
+                <CheckSquare size={24} className="text-red-500 mb-4" />
+                <h3 className="text-xl font-semibold mb-2">Drowning in paperwork?</h3>
+                <p className="text-gray-600">Struggling to stay compliant with ever-changing regulations and documentation.</p>
+              </div>
+              
+              <div className="bg-white p-6 rounded-lg shadow-md text-left">
+                <CheckSquare size={24} className="text-red-500 mb-4" />
+                <h3 className="text-xl font-semibold mb-2">Losing sleep over potential audit failures?</h3>
+                <p className="text-gray-600">Worrying about hefty fines and penalties from failed safety inspections.</p>
+              </div>
+              
+              <div className="bg-white p-6 rounded-lg shadow-md text-left">
+                <CheckSquare size={24} className="text-red-500 mb-4" />
+                <h3 className="text-xl font-semibold mb-2">Wasting hours on manual documentation?</h3>
+                <p className="text-gray-600">Time that could be better spent running your farm and growing your business.</p>
+              </div>
+            </div>
+            <div className="mt-8 bg-primary-50 p-6 rounded-lg border-l-4 border-primary">
+              <h3 className="text-xl font-semibold mb-2">FarmSafe360 eliminates these headaches with one integrated platform</h3>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Core Benefits Section - Rewritten to focus on outcomes */}
+      <section className="section-padding">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold">Real Results for Your Farm</h2>
+            <p className="text-xl text-gray-600 mt-4 max-w-2xl mx-auto">Our customers report an average 60% reduction in safety incidents and 100% audit pass rate after implementing FarmSafe360.</p>
+          </div>
           
-          <div className="grid md:grid-cols-6 gap-8">
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {/* Benefit 1 */}
-            <div className="bg-white p-8 rounded-xl shadow-md text-center">
+            <div className="bg-white p-8 rounded-xl shadow-md text-center hover:shadow-lg transition-all transform hover:-translate-y-1">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-100 text-primary mb-4">
                 <CheckCircle size={32} />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Prevent Equipment Failures</h3>
+              <h3 className="text-xl font-semibold mb-2">Save $50,000+ annually</h3>
               <p className="text-gray-600">
-                Catch issues before they become dangerous with systematic equipment checks and visual inspections.
+                By preventing costly equipment breakdowns before they happen with systematic equipment checks and visual inspections.
               </p>
             </div>
             
             {/* Benefit 2 */}
-            <div className="bg-white p-8 rounded-xl shadow-md text-center">
+            <div className="bg-white p-8 rounded-xl shadow-md text-center hover:shadow-lg transition-all transform hover:-translate-y-1">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-100 text-primary mb-4">
                 <Calendar size={32} />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Auto Maintenance Reminders</h3>
+              <h3 className="text-xl font-semibold mb-2">Never face unexpected failures again</h3>
               <p className="text-gray-600">
-                Never miss a critical safety check with customizable schedules and automated email alerts.
+                Smart scheduling and automated reminders ensure critical safety checks are never missed.
               </p>
             </div>
             
             {/* Benefit 3 */}
-            <div className="bg-white p-8 rounded-xl shadow-md text-center">
+            <div className="bg-white p-8 rounded-xl shadow-md text-center hover:shadow-lg transition-all transform hover:-translate-y-1">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-100 text-primary mb-4">
                 <FileText size={32} />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Digital Logs for Audits</h3>
+              <h3 className="text-xl font-semibold mb-2">Pass every safety audit</h3>
               <p className="text-gray-600">
-                Maintain detailed digital records of all safety checks and maintenance for instant compliance reporting.
+                Instantly accessible digital records make compliance reporting a breeze, eliminating audit stress.
               </p>
             </div>
             
             {/* Benefit 4 - Incident Reporting */}
-            <div className="bg-white p-8 rounded-xl shadow-md text-center">
+            <div className="bg-white p-8 rounded-xl shadow-md text-center hover:shadow-lg transition-all transform hover:-translate-y-1">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-100 text-primary mb-4">
                 <AlertTriangle size={32} />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Incident Reporting</h3>
+              <h3 className="text-xl font-semibold mb-2">Reduce incident investigation time</h3>
               <p className="text-gray-600">
-                Quickly document safety incidents, track investigations, and manage corrective actions from anywhere.
+                Cut investigation time from days to hours with structured reporting and digital documentation.
               </p>
             </div>
             
             {/* Benefit 5 - Training Register */}
-            <div className="bg-white p-8 rounded-xl shadow-md text-center">
+            <div className="bg-white p-8 rounded-xl shadow-md text-center hover:shadow-lg transition-all transform hover:-translate-y-1">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-100 text-primary mb-4">
                 <BookOpen size={32} />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Training Register</h3>
+              <h3 className="text-xl font-semibold mb-2">Eliminate compliance violations</h3>
               <p className="text-gray-600">
-                Track worker certifications, schedule training sessions, and ensure compliance with safety regulations.
+                Automated certification tracking ensures workers are always properly trained and qualified.
               </p>
             </div>
 
             {/* Benefit 6 - Worker Health */}
-            <div className="bg-white p-8 rounded-xl shadow-md text-center">
+            <div className="bg-white p-8 rounded-xl shadow-md text-center hover:shadow-lg transition-all transform hover:-translate-y-1">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-100 text-primary mb-4">
                 <Heart size={32} />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Worker Health</h3>
+              <h3 className="text-xl font-semibold mb-2">Protect your most valuable asset</h3>
               <p className="text-gray-600">
-                Manage worker health profiles, medical accommodations, and fitness for work assessments all in one place.
+                Keep your workers safe with personalized health monitoring and targeted fitness-for-work programs.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* How It Works Section */}
+      {/* Social Proof Section */}
+      <section className="bg-gray-50 py-16">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-2">Trusted by Leading Australian Farms</h2>
+          </div>
+          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16 max-w-5xl mx-auto mb-12">
+            {[1, 2, 3, 4, 5, 6].map((logo) => (
+              <div key={logo} className="h-12 w-32 bg-white rounded shadow-sm flex items-center justify-center">
+                <div className="text-gray-400 font-semibold">FARM LOGO</div>
+              </div>
+            ))}
+          </div>
+          <div className="flex justify-center">
+            <div className="bg-white rounded-lg shadow-md p-6 max-w-2xl">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="bg-primary text-white h-10 w-10 rounded-full flex items-center justify-center font-bold">60%</div>
+                <p className="text-lg">Average reduction in safety incidents</p>
+              </div>
+              <div className="flex items-center gap-4 mb-4">
+                <div className="bg-primary text-white h-10 w-10 rounded-full flex items-center justify-center font-bold">100%</div>
+                <p className="text-lg">Audit pass rate after implementation</p>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="bg-primary text-white h-10 w-10 rounded-full flex items-center justify-center font-bold">4.9★</div>
+                <p className="text-lg">Average customer satisfaction rating</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Enhanced How It Works Section */}
       <section className="section-padding">
         <div className="container mx-auto px-4">
-          <h2 className="text-center mb-12">How It Works</h2>
+          <h2 className="text-center text-3xl md:text-4xl font-bold mb-12">How It Works</h2>
           
           <div className="max-w-4xl mx-auto">
             <div className="relative">
               {/* Steps */}
-              <div className="hidden md:block absolute top-1/4 left-0 right-0 h-1 bg-primary-200 -z-10"></div>
+              <div className="hidden md:block absolute top-1/3 left-0 right-0 h-1 bg-primary-200 -z-10"></div>
               <div className="grid md:grid-cols-3 gap-8">
                 {/* Step 1 */}
                 <div className="flex flex-col items-center">
                   <div className="relative w-16 h-16 rounded-full bg-primary flex items-center justify-center text-white font-bold text-xl mb-4">
                     1
                   </div>
-                  <h3 className="text-xl font-semibold mb-2 text-center">Add Equipment</h3>
-                  <p className="text-gray-600 text-center">
-                    Register all your farm equipment with details on make, model, and safety features.
-                  </p>
+                  <div className="bg-white p-6 rounded-lg shadow-md text-center h-full">
+                    <h3 className="text-xl font-semibold mb-2">Upload farm details in 15 minutes</h3>
+                    <p className="text-gray-600 mb-4">
+                      Quickly register equipment and safety protocols with our guided setup wizard.
+                    </p>
+                    <div className="bg-primary-50 p-3 rounded text-primary font-medium">
+                      Get immediate safety insights
+                    </div>
+                  </div>
                 </div>
                 
                 {/* Step 2 */}
@@ -130,10 +268,15 @@ const Landing = () => {
                   <div className="relative w-16 h-16 rounded-full bg-primary flex items-center justify-center text-white font-bold text-xl mb-4">
                     2
                   </div>
-                  <h3 className="text-xl font-semibold mb-2 text-center">Run Safety Check</h3>
-                  <p className="text-gray-600 text-center">
-                    Complete digital safety checklists from any device, including mobile.
-                  </p>
+                  <div className="bg-white p-6 rounded-lg shadow-md text-center h-full">
+                    <h3 className="text-xl font-semibold mb-2">Complete digital safety checks in 2 minutes</h3>
+                    <p className="text-gray-600 mb-4">
+                      Workers easily complete checks from any mobile device, reducing paperwork burden.
+                    </p>
+                    <div className="bg-primary-50 p-3 rounded text-primary font-medium">
+                      Reduce incidents by 60%
+                    </div>
+                  </div>
                 </div>
                 
                 {/* Step 3 */}
@@ -141,10 +284,15 @@ const Landing = () => {
                   <div className="relative w-16 h-16 rounded-full bg-primary flex items-center justify-center text-white font-bold text-xl mb-4">
                     3
                   </div>
-                  <h3 className="text-xl font-semibold mb-2 text-center">Stay Compliant</h3>
-                  <p className="text-gray-600 text-center">
-                    Generate reports, set reminders, and maintain digital records for audits.
-                  </p>
+                  <div className="bg-white p-6 rounded-lg shadow-md text-center h-full">
+                    <h3 className="text-xl font-semibold mb-2">Generate compliance reports instantly</h3>
+                    <p className="text-gray-600 mb-4">
+                      One-click reporting for audits, incidents, and safety performance tracking.
+                    </p>
+                    <div className="bg-primary-50 p-3 rounded text-primary font-medium">
+                      Be audit-ready in seconds, not days
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -152,21 +300,268 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Testimonials Section */}
+      {/* Implementation Timeline Section */}
+      <section className="bg-gray-50 py-16">
+        <div className="container mx-auto px-4">
+          <h2 className="text-center text-3xl md:text-4xl font-bold mb-8">From Chaos to Compliance in 30 Days</h2>
+          <p className="text-center text-xl text-gray-600 mb-12 max-w-3xl mx-auto">
+            Our proven onboarding process gets you fully operational in just 4 weeks, with expert support every step of the way.
+          </p>
+          
+          <div className="max-w-5xl mx-auto">
+            <div className="relative">
+              <div className="hidden md:block absolute top-16 left-0 right-0 h-1 bg-gray-200"></div>
+              <div className="grid md:grid-cols-4 gap-6">
+                {/* Week 1 */}
+                <div className="relative">
+                  <div className="bg-primary text-white text-lg font-bold w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 z-10 relative">W1</div>
+                  <div className="bg-white p-5 rounded-lg shadow-md h-full">
+                    <h3 className="font-semibold text-lg mb-2 text-center">Setup & Configuration</h3>
+                    <ul className="text-gray-600 text-sm space-y-2">
+                      <li className="flex items-start">
+                        <CheckCircle size={16} className="text-green-500 mt-1 mr-2 flex-shrink-0" />
+                        <span>System setup with your farm details</span>
+                      </li>
+                      <li className="flex items-start">
+                        <CheckCircle size={16} className="text-green-500 mt-1 mr-2 flex-shrink-0" />
+                        <span>Equipment registry creation</span>
+                      </li>
+                      <li className="flex items-start">
+                        <CheckCircle size={16} className="text-green-500 mt-1 mr-2 flex-shrink-0" />
+                        <span>User accounts creation</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                
+                {/* Week 2 */}
+                <div className="relative">
+                  <div className="bg-primary text-white text-lg font-bold w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 z-10 relative">W2</div>
+                  <div className="bg-white p-5 rounded-lg shadow-md h-full">
+                    <h3 className="font-semibold text-lg mb-2 text-center">Data Migration & Training</h3>
+                    <ul className="text-gray-600 text-sm space-y-2">
+                      <li className="flex items-start">
+                        <CheckCircle size={16} className="text-green-500 mt-1 mr-2 flex-shrink-0" />
+                        <span>Import existing safety records</span>
+                      </li>
+                      <li className="flex items-start">
+                        <CheckCircle size={16} className="text-green-500 mt-1 mr-2 flex-shrink-0" />
+                        <span>Admin team training session</span>
+                      </li>
+                      <li className="flex items-start">
+                        <CheckCircle size={16} className="text-green-500 mt-1 mr-2 flex-shrink-0" />
+                        <span>Customize safety checklists</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                
+                {/* Week 3 */}
+                <div className="relative">
+                  <div className="bg-primary text-white text-lg font-bold w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 z-10 relative">W3</div>
+                  <div className="bg-white p-5 rounded-lg shadow-md h-full">
+                    <h3 className="font-semibold text-lg mb-2 text-center">Team Onboarding</h3>
+                    <ul className="text-gray-600 text-sm space-y-2">
+                      <li className="flex items-start">
+                        <CheckCircle size={16} className="text-green-500 mt-1 mr-2 flex-shrink-0" />
+                        <span>Worker training sessions</span>
+                      </li>
+                      <li className="flex items-start">
+                        <CheckCircle size={16} className="text-green-500 mt-1 mr-2 flex-shrink-0" />
+                        <span>Mobile app deployment</span>
+                      </li>
+                      <li className="flex items-start">
+                        <CheckCircle size={16} className="text-green-500 mt-1 mr-2 flex-shrink-0" />
+                        <span>Supervisor dashboard setup</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                
+                {/* Week 4 */}
+                <div className="relative">
+                  <div className="bg-primary text-white text-lg font-bold w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 z-10 relative">W4</div>
+                  <div className="bg-white p-5 rounded-lg shadow-md h-full">
+                    <h3 className="font-semibold text-lg mb-2 text-center">Full Deployment</h3>
+                    <ul className="text-gray-600 text-sm space-y-2">
+                      <li className="flex items-start">
+                        <CheckCircle size={16} className="text-green-500 mt-1 mr-2 flex-shrink-0" />
+                        <span>Go live with all features</span>
+                      </li>
+                      <li className="flex items-start">
+                        <CheckCircle size={16} className="text-green-500 mt-1 mr-2 flex-shrink-0" />
+                        <span>First safety reports generation</span>
+                      </li>
+                      <li className="flex items-start">
+                        <CheckCircle size={16} className="text-green-500 mt-1 mr-2 flex-shrink-0" />
+                        <span>Success review meeting</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ROI Calculator Section */}
+      <section className="section-padding">
+        <div className="container mx-auto px-4">
+          <h2 className="text-center text-3xl md:text-4xl font-bold mb-8">See Your Potential Savings</h2>
+          <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
+            <div className="grid md:grid-cols-2">
+              <div className="p-8 bg-primary text-white">
+                <h3 className="text-2xl font-semibold mb-6 flex items-center">
+                  <Calculator size={24} className="mr-2" />
+                  ROI Calculator
+                </h3>
+                <p className="mb-6">
+                  Calculate how much your farm could save with FarmSafe360 by reducing incidents, eliminating paperwork, and ensuring compliance.
+                </p>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block mb-1 text-white opacity-90">Annual safety incidents</label>
+                    <input type="number" className="w-full p-2 rounded text-gray-800" placeholder="5" />
+                  </div>
+                  <div>
+                    <label className="block mb-1 text-white opacity-90">Hours spent on paperwork per week</label>
+                    <input type="number" className="w-full p-2 rounded text-gray-800" placeholder="10" />
+                  </div>
+                  <div>
+                    <label className="block mb-1 text-white opacity-90">Number of workers</label>
+                    <input type="number" className="w-full p-2 rounded text-gray-800" placeholder="25" />
+                  </div>
+                  <div>
+                    <Button className="w-full bg-white text-primary hover:bg-gray-100">
+                      Calculate Savings
+                    </Button>
+                  </div>
+                </div>
+              </div>
+              <div className="p-8 bg-gray-50">
+                <h3 className="text-2xl font-semibold mb-6">Your Potential Savings</h3>
+                <div className="space-y-6">
+                  <div>
+                    <h4 className="font-medium text-gray-700">Incident Cost Reduction</h4>
+                    <div className="text-3xl font-bold text-primary">$45,000</div>
+                    <p className="text-sm text-gray-500">Based on average incident cost of $15,000</p>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-700">Paperwork Time Savings</h4>
+                    <div className="text-3xl font-bold text-primary">$18,720</div>
+                    <p className="text-sm text-gray-500">Based on 10hrs/week at $36/hr</p>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-700">Compliance Cost Avoidance</h4>
+                    <div className="text-3xl font-bold text-primary">$12,500</div>
+                    <p className="text-sm text-gray-500">Based on average audit prep & potential fines</p>
+                  </div>
+                  <div className="border-t pt-4">
+                    <h4 className="font-medium text-gray-700">Total Annual Savings</h4>
+                    <div className="text-4xl font-bold text-primary">$76,220</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Risk Reversal Section */}
       <section className="bg-gray-50 section-padding">
         <div className="container mx-auto px-4">
-          <h2 className="text-center mb-12">What Farmers Are Saying</h2>
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-center text-3xl md:text-4xl font-bold mb-8">Zero Risk, 100% Reward</h2>
+            
+            <div className="bg-white p-8 rounded-xl shadow-md">
+              <div className="grid md:grid-cols-2 gap-8">
+                <div>
+                  <h3 className="text-xl font-semibold mb-4">Our Commitment to Your Success</h3>
+                  <ul className="space-y-4">
+                    <li className="flex items-start">
+                      <CheckCircle size={20} className="text-primary mt-1 mr-3 flex-shrink-0" />
+                      <div>
+                        <span className="font-medium block">30-day money-back guarantee</span>
+                        <span className="text-gray-600 text-sm">Try FarmSafe360 risk-free</span>
+                      </div>
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle size={20} className="text-primary mt-1 mr-3 flex-shrink-0" />
+                      <div>
+                        <span className="font-medium block">No setup fees or hidden costs</span>
+                        <span className="text-gray-600 text-sm">Transparent pricing with no surprises</span>
+                      </div>
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle size={20} className="text-primary mt-1 mr-3 flex-shrink-0" />
+                      <div>
+                        <span className="font-medium block">Cancel anytime, keep your data</span>
+                        <span className="text-gray-600 text-sm">Your data always belongs to you</span>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold mb-4">Comprehensive Support</h3>
+                  <ul className="space-y-4">
+                    <li className="flex items-start">
+                      <CheckCircle size={20} className="text-primary mt-1 mr-3 flex-shrink-0" />
+                      <div>
+                        <span className="font-medium block">Full implementation support included</span>
+                        <span className="text-gray-600 text-sm">We'll guide you through the entire process</span>
+                      </div>
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle size={20} className="text-primary mt-1 mr-3 flex-shrink-0" />
+                      <div>
+                        <span className="font-medium block">Free data migration</span>
+                        <span className="text-gray-600 text-sm">We'll import your existing safety data at no cost</span>
+                      </div>
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle size={20} className="text-primary mt-1 mr-3 flex-shrink-0" />
+                      <div>
+                        <span className="font-medium block">Unlimited technical support</span>
+                        <span className="text-gray-600 text-sm">Our team is always ready to help</span>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div className="mt-8 bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-400 flex items-start">
+                <Clock size={20} className="text-yellow-500 mt-1 mr-3 flex-shrink-0" />
+                <div>
+                  <span className="font-medium block">New Farm Safety Regulations Take Effect Soon</span>
+                  <span className="text-gray-600">Ensure your compliance today before the deadline.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Enhanced Testimonials Section */}
+      <section className="section-padding">
+        <div className="container mx-auto px-4">
+          <h2 className="text-center text-3xl md:text-4xl font-bold mb-12">Loved by Farms Across Australia</h2>
           
-          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {/* Testimonial 1 */}
             <div className="bg-white p-8 rounded-xl shadow-md">
               <div className="flex items-start gap-4">
                 <div className="w-16 h-16 rounded-full bg-gray-300 flex-shrink-0"></div>
                 <div>
+                  <div className="flex mb-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star key={star} size={18} fill="#FFD700" color="#FFD700" />
+                    ))}
+                  </div>
                   <p className="text-gray-600 italic mb-4">
-                    "FarmSafe360 has transformed how we manage equipment safety on our farm. The digital checklists save us hours every week."
+                    "FarmSafe360 has transformed our safety culture. We've reduced incidents by 78% and our workers actually enjoy using the app for daily checks."
                   </p>
-                  <p className="font-medium">John D., Dairy Farmer</p>
+                  <p className="font-medium">Sarah M., Operations Manager</p>
+                  <p className="text-sm text-gray-500">Riverdale Crops Ltd</p>
                 </div>
               </div>
             </div>
@@ -176,12 +571,86 @@ const Landing = () => {
               <div className="flex items-start gap-4">
                 <div className="w-16 h-16 rounded-full bg-gray-300 flex-shrink-0"></div>
                 <div>
+                  <div className="flex mb-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star key={star} size={18} fill="#FFD700" color="#FFD700" />
+                    ))}
+                  </div>
                   <p className="text-gray-600 italic mb-4">
-                    "The automated reminders ensure we never miss a safety check. It's like having a safety manager on staff 24/7."
+                    "We passed our safety audit with flying colors thanks to the digital records in FarmSafe360. The ROI was evident within the first month."
                   </p>
-                  <p className="font-medium">Sarah M., Crop Farmer</p>
+                  <p className="font-medium">Mark J., Farm Owner</p>
+                  <p className="text-sm text-gray-500">Golden Valley Farms</p>
                 </div>
               </div>
+            </div>
+            
+            {/* Testimonial 3 */}
+            <div className="bg-white p-8 rounded-xl shadow-md">
+              <div className="flex items-start gap-4">
+                <div className="w-16 h-16 rounded-full bg-gray-300 flex-shrink-0"></div>
+                <div>
+                  <div className="flex mb-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star key={star} size={18} fill="#FFD700" color="#FFD700" />
+                    ))}
+                  </div>
+                  <p className="text-gray-600 italic mb-4">
+                    "The worker health module is a game-changer. We've improved worker wellbeing and reduced time off due to preventable issues."
+                  </p>
+                  <p className="font-medium">David L., Health & Safety Officer</p>
+                  <p className="text-sm text-gray-500">Murray Basin Agriculture</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="bg-gray-50 section-padding">
+        <div className="container mx-auto px-4">
+          <h2 className="text-center text-3xl md:text-4xl font-bold mb-12">Frequently Asked Questions</h2>
+          
+          <div className="max-w-3xl mx-auto space-y-6">
+            {/* FAQ Item 1 */}
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <h3 className="text-lg font-semibold mb-3">Is my sensitive farm data secure?</h3>
+              <p className="text-gray-600">
+                Absolutely. FarmSafe360 uses bank-level encryption and security protocols. Your data is stored in secure Australian data centers that comply with all privacy regulations. We never share your information with third parties.
+              </p>
+            </div>
+            
+            {/* FAQ Item 2 */}
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <h3 className="text-lg font-semibold mb-3">How long does implementation take?</h3>
+              <p className="text-gray-600">
+                Most farms are fully operational within 30 days. Our structured 4-week implementation process ensures a smooth transition. Smaller operations can be up and running even faster, often within 2 weeks.
+              </p>
+            </div>
+            
+            {/* FAQ Item 3 */}
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <h3 className="text-lg font-semibold mb-3">What if my workers aren't tech-savvy?</h3>
+              <p className="text-gray-600">
+                FarmSafe360 is designed with simplicity in mind. The mobile app has an intuitive interface that even the least tech-savvy workers can master in minutes. We also provide training resources and ongoing support.
+              </p>
+            </div>
+            
+            {/* FAQ Item 4 */}
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <h3 className="text-lg font-semibold mb-3">Can I integrate with our existing systems?</h3>
+              <p className="text-gray-600">
+                Yes, FarmSafe360 integrates with most farm management software, accounting systems, and equipment monitoring tools. Our team will work with you to ensure smooth data flow between systems.
+              </p>
+            </div>
+            
+            {/* FAQ Item 5 */}
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <h3 className="text-lg font-semibold mb-3">What happens to our data if we cancel?</h3>
+              <p className="text-gray-600">
+                Your data always belongs to you. If you decide to cancel, we provide a complete export of all your information in standard formats that can be imported into other systems. We also retain your data securely for 90 days post-cancellation.
+              </p>
             </div>
           </div>
         </div>
@@ -190,16 +659,22 @@ const Landing = () => {
       {/* CTA Section */}
       <section id="signup-section" className="section-padding bg-primary text-white text-center">
         <div className="container mx-auto px-4">
-          <h2 className="mb-6 text-white">Start Your Free Trial Today</h2>
+          <h2 className="mb-6 text-white text-3xl md:text-4xl font-bold">Protect Your Farm Today</h2>
           <p className="text-xl mb-8 max-w-2xl mx-auto opacity-90">
-            No credit card needed. See how FarmSafe360 can help protect your farm, workers, and bottom line.
+            Join 500+ Australian farms already using FarmSafe360 to reduce incidents, ensure compliance, and protect their workers.
           </p>
-          <div className="flex justify-center">
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Button size="lg" className="bg-white text-primary hover:bg-gray-100 text-lg py-6 px-8 rounded-full" asChild>
-              <Link to="/signup">Sign Up</Link>
+              <Link to="/signup">Start Free 30-Day Trial</Link>
+            </Button>
+            <Button size="lg" variant="outline" className="bg-transparent border-white text-white hover:bg-white/10 text-lg py-6 px-8 rounded-full" onClick={watchDemo}>
+              See FarmSafe360 in Action
             </Button>
           </div>
-          <p className="mt-6 text-sm opacity-80">Free trial includes all features for 30 days. No obligations.</p>
+          <div className="mt-8 flex justify-center items-center gap-2">
+            <Shield size={20} className="text-white/80" />
+            <p className="text-white/80">No credit card required. 30-day free trial with all features included.</p>
+          </div>
         </div>
       </section>
     </div>
@@ -207,3 +682,4 @@ const Landing = () => {
 };
 
 export default Landing;
+
