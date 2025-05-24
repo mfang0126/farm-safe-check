@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
 import { CheckCircle, Calendar, FileText, ChevronRight, AlertTriangle, BookOpen, Heart, Star, Shield, CheckSquare, Calculator, Clock } from 'lucide-react';
@@ -21,7 +20,7 @@ const Landing = () => {
         <div className="container mx-auto px-4 py-16 relative z-10">
           <div className="max-w-4xl mx-auto">
             <div className="flex flex-col md:flex-row gap-8 items-center">
-              <div className="md:w-3/5 text-left">
+              <div className="md:w-full text-left">
                 <div className="mb-4 inline-flex items-center px-3 py-1 rounded-full bg-primary-50 text-primary text-sm border border-primary-100">
                   <Shield size={16} className="mr-2" /> Trusted by 500+ Australian farms
                 </div>
@@ -65,15 +64,6 @@ const Landing = () => {
                     </p>
                     <p className="font-medium">John D., Safety Manager at Murray River Farms</p>
                   </div>
-                </div>
-              </div>
-              <div className="md:w-2/5">
-                <div className="bg-white p-3 rounded-xl shadow-xl border border-gray-200 overflow-hidden">
-                  <img 
-                    src="https://images.unsplash.com/photo-1472396961693-142e6e269027?auto=format&fit=crop&q=80" 
-                    alt="Farm safety dashboard on tablet" 
-                    className="rounded-lg w-full"
-                  />
                 </div>
               </div>
             </div>
@@ -720,4 +710,3 @@ const Landing = () => {
 };
 
 export default Landing;
-
