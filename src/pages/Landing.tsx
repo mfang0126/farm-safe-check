@@ -14,7 +14,7 @@ const Landing = () => {
   return <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
       {/* Hero Section - Redesigned with principles from screenshots */}
       <section className="min-h-[80vh] flex items-center relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('https://unsplash.com/photos/grass-field-IQVFVH0ajag')] bg-cover bg-center opacity-50"></div>
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1560493676-04071c5f467b?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')] bg-cover bg-center opacity-50"></div>
         <div className="container mx-auto px-4 py-16 relative z-10">
           <div className="max-w-4xl mx-auto">
             <div className="flex flex-col md:flex-row gap-8 items-center">
