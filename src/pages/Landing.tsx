@@ -1,22 +1,20 @@
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
 import { CheckCircle, Calendar, FileText, ChevronRight, AlertTriangle, BookOpen, Heart, Star, Shield, CheckSquare, Calculator, Clock } from 'lucide-react';
-
 const Landing = () => {
   const scrollToSignup = () => {
-    document.getElementById('signup-section')?.scrollIntoView({ behavior: 'smooth' });
+    document.getElementById('signup-section')?.scrollIntoView({
+      behavior: 'smooth'
+    });
   };
-
   const watchDemo = () => {
     // In a real app, this would open a modal with a demo video
     alert("Demo video would play here");
   };
-
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
+  return <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
       {/* Hero Section - Redesigned with principles from screenshots */}
       <section className="min-h-[80vh] flex items-center relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1472396961693-142e6e269027?auto=format&fit=crop&q=80')] bg-cover bg-center opacity-10"></div>
+        <div className="absolute inset-0 bg-[url('https://unsplash.com/photos/grass-field-IQVFVH0ajag')] bg-cover bg-center opacity-50"></div>
         <div className="container mx-auto px-4 py-16 relative z-10">
           <div className="max-w-4xl mx-auto">
             <div className="flex flex-col md:flex-row gap-8 items-center">
@@ -31,19 +29,10 @@ const Landing = () => {
                   Join 500+ Australian farms who've eliminated paperwork, ensured compliance, and protected their workers with our all-in-one safety platform
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                  <Button 
-                    size="lg" 
-                    className="bg-primary hover:bg-primary-600 text-lg py-6 px-8 rounded-full shadow-lg"
-                    onClick={scrollToSignup}
-                  >
+                  <Button size="lg" className="bg-primary hover:bg-primary-600 text-lg py-6 px-8 rounded-full shadow-lg" onClick={scrollToSignup}>
                     Start Free 30-Day Trial
                   </Button>
-                  <Button 
-                    size="lg" 
-                    variant="outline"
-                    className="text-lg py-6 px-8 rounded-full border-2 border-primary text-primary hover:bg-primary-50"
-                    onClick={watchDemo}
-                  >
+                  <Button size="lg" variant="outline" className="text-lg py-6 px-8 rounded-full border-2 border-primary text-primary hover:bg-primary-50" onClick={watchDemo}>
                     Watch 2-Minute Demo
                   </Button>
                 </div>
@@ -55,9 +44,7 @@ const Landing = () => {
                   </div>
                   <div>
                     <div className="flex mb-2">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <Star key={star} size={18} fill="#FFD700" color="#FFD700" />
-                      ))}
+                      {[1, 2, 3, 4, 5].map(star => <Star key={star} size={18} fill="#FFD700" color="#FFD700" />)}
                     </div>
                     <p className="text-gray-600 italic mb-2">
                       "FarmSafe360 cut our safety incidents by 72% in the first year. The ROI is incredible."
@@ -217,11 +204,9 @@ const Landing = () => {
             <div className="h-1 w-20 bg-primary mx-auto"></div>
           </div>
           <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16 max-w-5xl mx-auto mb-16">
-            {[1, 2, 3, 4, 5, 6].map((logo) => (
-              <div key={logo} className="h-16 w-40 bg-white rounded-lg shadow-sm flex items-center justify-center border border-gray-100">
+            {[1, 2, 3, 4, 5, 6].map(logo => <div key={logo} className="h-16 w-40 bg-white rounded-lg shadow-sm flex items-center justify-center border border-gray-100">
                 <div className="text-gray-400 font-semibold">FARM LOGO</div>
-              </div>
-            ))}
+              </div>)}
           </div>
           <div className="flex justify-center">
             <div className="bg-white rounded-xl shadow-sm p-8 max-w-2xl border border-gray-100">
@@ -575,9 +560,7 @@ const Landing = () => {
                 <div className="w-16 h-16 rounded-full bg-gray-300 flex-shrink-0"></div>
                 <div>
                   <div className="flex mb-1">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Star key={star} size={16} fill="#FFD700" color="#FFD700" />
-                    ))}
+                    {[1, 2, 3, 4, 5].map(star => <Star key={star} size={16} fill="#FFD700" color="#FFD700" />)}
                   </div>
                   <p className="font-medium text-gray-800">Sarah M.</p>
                   <p className="text-sm text-gray-500">Operations Manager, Riverdale Crops</p>
@@ -594,9 +577,7 @@ const Landing = () => {
                 <div className="w-16 h-16 rounded-full bg-gray-300 flex-shrink-0"></div>
                 <div>
                   <div className="flex mb-1">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Star key={star} size={16} fill="#FFD700" color="#FFD700" />
-                    ))}
+                    {[1, 2, 3, 4, 5].map(star => <Star key={star} size={16} fill="#FFD700" color="#FFD700" />)}
                   </div>
                   <p className="font-medium text-gray-800">Mark J.</p>
                   <p className="text-sm text-gray-500">Farm Owner, Golden Valley Farms</p>
@@ -613,9 +594,7 @@ const Landing = () => {
                 <div className="w-16 h-16 rounded-full bg-gray-300 flex-shrink-0"></div>
                 <div>
                   <div className="flex mb-1">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Star key={star} size={16} fill="#FFD700" color="#FFD700" />
-                    ))}
+                    {[1, 2, 3, 4, 5].map(star => <Star key={star} size={16} fill="#FFD700" color="#FFD700" />)}
                   </div>
                   <p className="font-medium text-gray-800">David L.</p>
                   <p className="text-sm text-gray-500">Health & Safety Officer, Murray Basin Agriculture</p>
@@ -705,8 +684,6 @@ const Landing = () => {
           </div>
         </div>
       </section>
-    </div>
-  );
+    </div>;
 };
-
 export default Landing;
