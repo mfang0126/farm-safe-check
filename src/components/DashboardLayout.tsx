@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from '@/contexts/AuthContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { NAV_ITEMS } from '@/constants/navigation';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -37,18 +38,6 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = useLocation();
   const { user, signOut } = useAuth();
-
-  const navItems = [
-    { icon: LayoutDashboard, name: 'Dashboard', path: '/dashboard' },
-    { icon: Tractor, name: 'Equipment', path: '/dashboard/equipment' },
-    { icon: FileCheck, name: 'Checklists', path: '/dashboard/checklists' },
-    { icon: Calendar, name: 'Maintenance', path: '/dashboard/maintenance' },
-    // { icon: AlertTriangle, name: 'Incidents', path: '/dashboard/incidents' },
-    // { icon: BookOpen, name: 'Training', path: '/dashboard/training' },
-    // { icon: Heart, name: 'Worker Health', path: '/dashboard/health' },
-    { icon: PieChart, name: 'Risk Dashboard', path: '/dashboard/risk' },
-    // { icon: FileText, name: 'Resources', path: '/dashboard/resources' },
-  ];
 
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -146,7 +135,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           <div className="md:hidden fixed inset-0 bg-black/50 z-20" onClick={() => setIsSidebarOpen(false)}>
             <div className="w-64 bg-white h-full overflow-y-auto p-4" onClick={e => e.stopPropagation()}>
               <nav className="space-y-1 py-4">
-                {navItems.map((item) => (
+                {NAV_ITEMS.map((item) => (
                   <Link
                     key={item.path}
                     to={item.path}
@@ -169,7 +158,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         {/* Sidebar - Desktop */}
         <aside className="hidden md:block w-64 bg-white border-r border-gray-200 p-4 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto">
           <nav className="space-y-1">
-            {navItems.map((item) => (
+            {NAV_ITEMS.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}

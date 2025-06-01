@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -11,6 +10,7 @@ import {
 import { Menu, X, User, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { NAV_ITEMS } from '@/constants/navigation';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -25,6 +25,9 @@ const Navbar = () => {
     if (!user) return 'U';
     return user.email?.charAt(0).toUpperCase() || 'U';
   };
+
+  // Filter out main dashboard from solutions dropdown
+  const solutionItems = NAV_ITEMS.filter(item => item.path !== '/dashboard');
 
   return (
     <nav className="bg-white shadow-sm py-4 sticky top-0 z-50">
@@ -42,30 +45,11 @@ const Navbar = () => {
               <button className="text-gray-700 hover:text-primary font-medium">Solutions</button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-[200px] bg-white">
-              <DropdownMenuItem asChild>
-                <Link to="/dashboard/equipment" className="cursor-pointer">Equipment Registry</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/dashboard/checklists" className="cursor-pointer">Safety Checklists</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/dashboard/maintenance" className="cursor-pointer">Maintenance Scheduler</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/dashboard/incidents" className="cursor-pointer">Incident Reporting</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/dashboard/training" className="cursor-pointer">Training Register</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/dashboard/health" className="cursor-pointer">Worker Health</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/dashboard/risk" className="cursor-pointer">Risk Dashboard</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/dashboard/resources" className="cursor-pointer">Resource Hub</Link>
-              </DropdownMenuItem>
+              {solutionItems.map((item) => (
+                <DropdownMenuItem key={item.path} asChild>
+                  <Link to={item.path} className="cursor-pointer">{item.name}</Link>
+                </DropdownMenuItem>
+              ))}
             </DropdownMenuContent>
           </DropdownMenu>
           
@@ -131,14 +115,16 @@ const Navbar = () => {
             <Link to="/" className="text-gray-700 hover:text-primary font-medium py-2" onClick={toggleMenu}>Home</Link>
             <div className="flex flex-col pl-4 border-l-2 border-gray-200">
               <h3 className="font-medium mb-2">Solutions</h3>
-              <Link to="/dashboard/equipment" className="text-gray-700 hover:text-primary py-1" onClick={toggleMenu}>Equipment Registry</Link>
-              <Link to="/dashboard/checklists" className="text-gray-700 hover:text-primary py-1" onClick={toggleMenu}>Safety Checklists</Link>
-              <Link to="/dashboard/maintenance" className="text-gray-700 hover:text-primary py-1" onClick={toggleMenu}>Maintenance Scheduler</Link>
-              <Link to="/dashboard/incidents" className="text-gray-700 hover:text-primary py-1" onClick={toggleMenu}>Incident Reporting</Link>
-              <Link to="/dashboard/training" className="text-gray-700 hover:text-primary py-1" onClick={toggleMenu}>Training Register</Link>
-              <Link to="/dashboard/health" className="text-gray-700 hover:text-primary py-1" onClick={toggleMenu}>Worker Health</Link>
-              <Link to="/dashboard/risk" className="text-gray-700 hover:text-primary py-1" onClick={toggleMenu}>Risk Dashboard</Link>
-              <Link to="/dashboard/resources" className="text-gray-700 hover:text-primary py-1" onClick={toggleMenu}>Resource Hub</Link>
+              {solutionItems.map((item) => (
+                <Link 
+                  key={item.path}
+                  to={item.path} 
+                  className="text-gray-700 hover:text-primary py-1" 
+                  onClick={toggleMenu}
+                >
+                  {item.name}
+                </Link>
+              ))}
             </div>
             <Link to="/pricing" className="text-gray-700 hover:text-primary font-medium py-2" onClick={toggleMenu}>Pricing</Link>
             
