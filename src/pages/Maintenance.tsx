@@ -153,8 +153,11 @@ const Maintenance = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Maintenance Scheduler</h1>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold">Maintenance Scheduler</h1>
+          <p className="text-muted-foreground">Manage and track equipment maintenance schedules</p>
+        </div>
         <div className="flex items-center gap-4">
           <div className="flex gap-2 bg-white rounded-lg shadow p-1">
             <Button 
