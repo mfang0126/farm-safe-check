@@ -1,6 +1,4 @@
-
 import { useState } from 'react';
-import DashboardLayout from '@/components/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
@@ -154,68 +152,64 @@ const Maintenance = () => {
   });
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold">Maintenance Scheduler</h1>
-          <div className="flex items-center gap-4">
-            <div className="flex gap-2 bg-white rounded-lg shadow p-1">
-              <Button 
-                variant={viewType === 'list' ? 'default' : 'ghost'} 
-                size="sm" 
-                onClick={() => setViewType('list')}
-                className="px-3"
-              >
-                List
-              </Button>
-              <Button 
-                variant={viewType === 'calendar' ? 'default' : 'ghost'} 
-                size="sm" 
-                onClick={() => setViewType('calendar')}
-                className="px-3"
-              >
-                Calendar
-              </Button>
-            </div>
-            
-            <Dialog open={isAddTaskOpen} onOpenChange={setIsAddTaskOpen}>
-              <DialogTrigger asChild>
-                <Button>
-                  Add Maintenance Task
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[500px]">
-                <DialogHeader>
-                  <DialogTitle>Add Maintenance Task</DialogTitle>
-                  <DialogDescription>
-                    Create a new maintenance task. Click save when you're done.
-                  </DialogDescription>
-                </DialogHeader>
-                <MaintenanceForm 
-                  onSubmit={handleAddTask}
-                  onCancel={() => setIsAddTaskOpen(false)}
-                />
-              </DialogContent>
-            </Dialog>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold">Maintenance Scheduler</h1>
+        <div className="flex items-center gap-4">
+          <div className="flex gap-2 bg-white rounded-lg shadow p-1">
+            <Button 
+              variant={viewType === 'list' ? 'default' : 'ghost'} 
+              size="sm" 
+              onClick={() => setViewType('list')}
+              className="px-3"
+            >
+              List
+            </Button>
+            <Button 
+              variant={viewType === 'calendar' ? 'default' : 'ghost'} 
+              size="sm" 
+              onClick={() => setViewType('calendar')}
+              className="px-3"
+            >
+              Calendar
+            </Button>
           </div>
-        </div>
-        
-        <div className="flex flex-col">
-          {viewType === 'list' ? (
-            <MaintenanceListView 
-              tasks={filteredTasks} 
-              onCompleteTask={handleCompleteTask} 
-              onStartTask={handleStartTask} 
-            />
-          ) : (
-            <MaintenanceCalendarView 
-              tasks={filteredTasks} 
-              onCompleteTask={handleCompleteTask} 
-            />
-          )}
+          
+          <Dialog open={isAddTaskOpen} onOpenChange={setIsAddTaskOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                Add Maintenance Task
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[500px]">
+              <DialogHeader>
+                <DialogTitle>Add Maintenance Task</DialogTitle>
+                <DialogDescription>
+                  Create a new maintenance task. Click save when you're done.
+                </DialogDescription>
+              </DialogHeader>
+              <MaintenanceForm 
+                onSubmit={handleAddTask}
+                onCancel={() => setIsAddTaskOpen(false)}
+              />
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
-    </DashboardLayout>
+      
+      {viewType === 'list' ? (
+        <MaintenanceListView 
+          tasks={filteredTasks}
+          onCompleteTask={handleCompleteTask}
+          onStartTask={handleStartTask}
+        />
+      ) : (
+        <MaintenanceCalendarView 
+          tasks={filteredTasks}
+          onCompleteTask={handleCompleteTask}
+        />
+      )}
+    </div>
   );
 };
 

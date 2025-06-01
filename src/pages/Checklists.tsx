@@ -1,6 +1,4 @@
-
 import React from 'react';
-import DashboardLayout from '@/components/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -191,202 +189,207 @@ const Checklists = () => {
   };
 
   return (
-    <DashboardLayout>
-      {!runningCheck ? (
-        <div className="space-y-6">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-bold">Safety Checklists</h1>
-              <p className="text-gray-600 mt-1">Create and manage equipment safety checklists</p>
-            </div>
-            
-            <div className="flex gap-3">
-              <Button variant="outline">
-                <Plus size={16} className="mr-2" />
-                Create Template
-              </Button>
-              <Button className="bg-primary hover:bg-primary-600" onClick={() => setRunningCheck(true)}>
-                <FileCheck size={16} className="mr-2" />
-                Run Check
-              </Button>
-            </div>
+    !runningCheck ? (
+      <div className="space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold">Safety Checklists</h1>
+            <p className="text-gray-600 mt-1">Create and manage equipment safety checklists</p>
           </div>
           
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid grid-cols-2 w-full max-w-md mb-6">
-              <TabsTrigger value="templates">Templates</TabsTrigger>
-              <TabsTrigger value="history">History</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="templates">
-              <div className="flex gap-4 mb-6">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" size={18} />
-                  <Input placeholder="Search templates..." className="pl-10" />
-                </div>
-                <Select defaultValue="all">
-                  <SelectTrigger className="w-[180px]">
-                    <div className="flex items-center gap-2">
-                      <Filter size={16} />
-                      <SelectValue placeholder="All Categories" />
-                    </div>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Categories</SelectItem>
-                    <SelectItem value="tractors">Tractors</SelectItem>
-                    <SelectItem value="harvesters">Harvesters</SelectItem>
-                    <SelectItem value="sprayers">Sprayers</SelectItem>
-                    <SelectItem value="vehicles">Vehicles</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                {checklistTemplates.map(template => (
-                  <Card key={template.id}>
-                    <CardHeader>
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="bg-primary-50 text-primary-700 text-xs px-2 py-1 rounded-full">
-                          {template.category}
-                        </span>
-                        <span className="text-sm text-gray-500">{template.items} items</span>
-                      </div>
-                      <CardTitle className="text-lg">{template.title}</CardTitle>
-                      <CardDescription>{template.description}</CardDescription>
-                    </CardHeader>
-                    <CardFooter className="flex justify-between pt-2">
-                      <Button variant="outline" size="sm">Edit</Button>
-                      <Button 
-                        className="bg-primary hover:bg-primary-600" 
-                        size="sm" 
-                        onClick={() => setRunningCheck(true)}
-                      >
-                        Run Check
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                ))}
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="history">
-              <div className="flex gap-4 mb-6">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" size={18} />
-                  <Input placeholder="Search completed checklists..." className="pl-10" />
-                </div>
-                <Input type="date" className="w-40" />
-              </div>
-              
-              <div className="space-y-4">
-                {checklistHistory.map(history => (
-                  <Card key={history.id}>
-                    <CardHeader className="pb-2">
-                      <div className="flex justify-between">
-                        <CardTitle>{history.equipmentName}</CardTitle>
-                        <span className={`px-2 py-1 rounded-full text-xs ${getStatusClass(history.status)}`}>
-                          {history.status}
-                        </span>
-                      </div>
-                      <CardDescription>{history.templateName}</CardDescription>
-                    </CardHeader>
-                    <CardContent className="pb-4">
-                      <div className="flex justify-between text-sm">
-                        <div>
-                          <span className="font-medium">Completed by:</span> {history.completedBy}
-                        </div>
-                        <div>
-                          <span className="font-medium">Date:</span> {new Date(history.completedOn).toLocaleDateString()}
-                        </div>
-                        <div>
-                          <span className="font-medium">Issues:</span> {history.issues}
-                        </div>
-                      </div>
-                    </CardContent>
-                    <CardFooter className="pt-0">
-                      <Button size="sm" variant="outline" className="ml-auto">View Details</Button>
-                    </CardFooter>
-                  </Card>
-                ))}
-              </div>
-            </TabsContent>
-          </Tabs>
-        </div>
-      ) : (
-        <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-bold">{checklist.title}</h1>
-              <p className="text-gray-600 mt-1">Equipment: {checklist.equipment}</p>
-            </div>
-            <Button variant="outline" onClick={() => setRunningCheck(false)}>
-              Cancel
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button 
+              onClick={() => setRunningCheck(true)}
+              className="flex items-center gap-2"
+            >
+              <FileCheck size={16} />
+              Create Template
+            </Button>
+            <Button 
+              onClick={() => setRunningCheck(true)}
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              <CheckCircle size={16} />
+              Run Check
             </Button>
           </div>
+        </div>
+
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="templates">Templates</TabsTrigger>
+            <TabsTrigger value="history">History</TabsTrigger>
+          </TabsList>
           
-          <div className="bg-white rounded-lg border p-6 space-y-8">
-            {checklist.sections.map((section, sectionIndex) => (
-              <div key={sectionIndex} className="space-y-4">
-                <h3 className="text-lg font-semibold border-b pb-2">{section.name}</h3>
-                <div className="space-y-3">
-                  {section.items.map(item => (
-                    <div key={item.id} className="flex items-center gap-3">
-                      <Checkbox 
-                        id={`item-${item.id}`} 
-                        checked={item.checked}
-                        onCheckedChange={() => handleCheckItem(sectionIndex, item.id)}
-                        className="h-5 w-5"
-                      />
-                      <Label 
-                        htmlFor={`item-${item.id}`}
-                        className={`flex-1 ${item.checked ? 'line-through text-gray-500' : ''}`}
-                      >
-                        {item.text}
-                      </Label>
+          <TabsContent value="templates" className="space-y-6">
+            <div className="flex flex-col lg:flex-row gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Input 
+                  placeholder="Search templates..." 
+                  className="pl-10"
+                />
+              </div>
+              <Select>
+                <SelectTrigger className="w-full lg:w-48">
+                  <div className="flex items-center gap-2">
+                    <Filter size={16} />
+                    <SelectValue placeholder="All Categories" />
+                  </div>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  <SelectItem value="tractors">Tractors</SelectItem>
+                  <SelectItem value="harvesters">Harvesters</SelectItem>
+                  <SelectItem value="sprayers">Sprayers</SelectItem>
+                  <SelectItem value="vehicles">Vehicles</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-6">
+              {checklistTemplates.map((template) => (
+                <Card key={template.id} className="h-full">
+                  <CardHeader>
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <div className="text-sm text-primary bg-primary/10 px-2 py-1 rounded mb-2 w-fit">
+                          {template.category}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {template.items} items
+                        </div>
+                      </div>
+                    </div>
+                    <CardTitle className="text-lg">{template.title}</CardTitle>
+                    <CardDescription>{template.description}</CardDescription>
+                  </CardHeader>
+                  <CardFooter className="flex gap-2 pt-0">
+                    <Button variant="outline" size="sm">
+                      Edit
+                    </Button>
+                    <Button size="sm" onClick={() => setRunningCheck(true)}>
+                      Run Check
+                    </Button>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="history" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Checklist History</CardTitle>
+                <CardDescription>
+                  Review previously completed safety checklists
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {checklistHistory.map((record) => (
+                    <div key={record.id} className="flex justify-between items-center p-4 border rounded-lg">
+                      <div className="flex-1">
+                        <h4 className="font-medium">{record.equipmentName}</h4>
+                        <p className="text-sm text-gray-600">{record.templateName}</p>
+                        <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                          <span>Completed by: {record.completedBy}</span>
+                          <span>Date: {record.completedOn}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className={`px-2 py-1 rounded text-xs ${getStatusClass(record.status)}`}>
+                          {record.status}
+                        </span>
+                        {record.issues > 0 && (
+                          <span className="text-xs text-amber-600">
+                            {record.issues} issue{record.issues !== 1 ? 's' : ''}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+    ) : (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold">{checklist.title}</h1>
+            <p className="text-gray-600 mt-1">Equipment: {checklist.equipment}</p>
+          </div>
+          <Button variant="outline" onClick={() => setRunningCheck(false)}>
+            Cancel
+          </Button>
+        </div>
+        
+        <div className="bg-white rounded-lg border p-6 space-y-8">
+          {checklist.sections.map((section, sectionIndex) => (
+            <div key={sectionIndex} className="space-y-4">
+              <h3 className="text-lg font-semibold border-b pb-2">{section.name}</h3>
+              <div className="space-y-3">
+                {section.items.map(item => (
+                  <div key={item.id} className="flex items-center gap-3">
+                    <Checkbox 
+                      id={`item-${item.id}`} 
+                      checked={item.checked}
+                      onCheckedChange={() => handleCheckItem(sectionIndex, item.id)}
+                      className="h-5 w-5"
+                    />
+                    <Label 
+                      htmlFor={`item-${item.id}`}
+                      className={`flex-1 ${item.checked ? 'line-through text-gray-500' : ''}`}
+                    >
+                      {item.text}
+                    </Label>
+                  </div>
+                ))}
               </div>
-            ))}
-            
-            <div className="space-y-2">
-              <Label htmlFor="notes">Additional Notes:</Label>
-              <Input 
-                id="notes" 
-                placeholder="Enter any issues, observations, or comments..." 
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-              />
+            </div>
+          ))}
+          
+          <div className="space-y-2">
+            <Label htmlFor="notes">Additional Notes:</Label>
+            <Input 
+              id="notes" 
+              placeholder="Enter any issues, observations, or comments..." 
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+            />
+          </div>
+          
+          <div className="pt-4 space-y-4">
+            <div className="flex gap-4 items-center">
+              <Label htmlFor="status">Safety Status:</Label>
+              <Select defaultValue="passed">
+                <SelectTrigger id="status" className="w-[200px]">
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="passed">Passed</SelectItem>
+                  <SelectItem value="needs-maintenance">Needs Maintenance</SelectItem>
+                  <SelectItem value="failed">Failed</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             
-            <div className="pt-4 space-y-4">
-              <div className="flex gap-4 items-center">
-                <Label htmlFor="status">Safety Status:</Label>
-                <Select defaultValue="passed">
-                  <SelectTrigger id="status" className="w-[200px]">
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="passed">Passed</SelectItem>
-                    <SelectItem value="needs-maintenance">Needs Maintenance</SelectItem>
-                    <SelectItem value="failed">Failed</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <Button 
-                className="bg-primary hover:bg-primary-600 w-full" 
-                size="lg" 
-                onClick={handleSubmitCheck}
-              >
-                <CheckCircle size={16} className="mr-2" />
-                Complete Safety Check
-              </Button>
-            </div>
+            <Button 
+              className="bg-primary hover:bg-primary-600 w-full" 
+              size="lg" 
+              onClick={handleSubmitCheck}
+            >
+              <CheckCircle size={16} className="mr-2" />
+              Complete Safety Check
+            </Button>
           </div>
         </div>
-      )}
-    </DashboardLayout>
+      </div>
+    )
   );
 };
 

@@ -1,5 +1,3 @@
-
-import DashboardLayout from "@/components/DashboardLayout";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -92,107 +90,105 @@ const articles = [
 
 const ResourceHub = () => {
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Compliance Resource Hub</h1>
-          <p className="text-gray-600 mt-1">Access templates, guides, and resources for farm equipment safety</p>
-        </div>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold">Compliance Resource Hub</h1>
+        <p className="text-gray-600 mt-1">Access templates, guides, and resources for farm equipment safety</p>
+      </div>
+      
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" size={18} />
+        <Input placeholder="Search resources..." className="pl-10" />
+      </div>
+      
+      <Tabs defaultValue="resources">
+        <TabsList className="grid grid-cols-2 w-full max-w-md mb-6">
+          <TabsTrigger value="resources">Resources</TabsTrigger>
+          <TabsTrigger value="articles">Articles</TabsTrigger>
+        </TabsList>
         
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" size={18} />
-          <Input placeholder="Search resources..." className="pl-10" />
-        </div>
-        
-        <Tabs defaultValue="resources">
-          <TabsList className="grid grid-cols-2 w-full max-w-md mb-6">
-            <TabsTrigger value="resources">Resources</TabsTrigger>
-            <TabsTrigger value="articles">Articles</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="resources">
-            <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-              {resources.map(resource => (
-                <Card key={resource.id}>
-                  <CardHeader className="pb-2">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="bg-primary-50 text-primary-700 text-xs px-2 py-1 rounded-full">
-                        {resource.category}
-                      </span>
-                      <span className="font-medium text-xs bg-gray-100 px-2 py-1 rounded-full">
-                        {resource.type}
-                      </span>
-                    </div>
-                    <CardTitle>{resource.title}</CardTitle>
-                    <CardDescription>{resource.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent className="text-sm text-gray-500">
-                    Updated: {new Date(resource.updatedAt).toLocaleDateString()}
-                  </CardContent>
-                  <CardFooter>
-                    <Button className="w-full gap-2 bg-primary hover:bg-primary-600">
-                      <Download size={16} />
-                      Download
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="articles">
-            <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
-              {articles.map(article => (
-                <Card key={article.id} className="overflow-hidden">
-                  <div className="md:flex">
-                    <div className="md:w-1/3">
-                      <img 
-                        src={article.imageUrl} 
-                        alt={article.title}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="md:w-2/3">
-                      <CardHeader>
-                        <CardTitle className="text-xl">{article.title}</CardTitle>
-                        <div className="flex gap-2 text-sm text-gray-500 mt-1">
-                          <span>{article.readTime}</span>
-                          <span>•</span>
-                          <span>{new Date(article.date).toLocaleDateString()}</span>
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-gray-600">{article.description}</p>
-                      </CardContent>
-                      <CardFooter>
-                        <Button variant="outline" className="gap-2">
-                          <FileText size={16} />
-                          Read Article
-                        </Button>
-                      </CardFooter>
-                    </div>
+        <TabsContent value="resources">
+          <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            {resources.map(resource => (
+              <Card key={resource.id}>
+                <CardHeader className="pb-2">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="bg-primary-50 text-primary-700 text-xs px-2 py-1 rounded-full">
+                      {resource.category}
+                    </span>
+                    <span className="font-medium text-xs bg-gray-100 px-2 py-1 rounded-full">
+                      {resource.type}
+                    </span>
                   </div>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-        </Tabs>
-        
-        <div className="bg-primary-50 border border-primary-100 p-6 rounded-lg">
-          <div className="flex flex-col md:flex-row gap-6 items-center">
-            <div className="flex-1">
-              <h2 className="text-xl font-semibold text-primary-900">Need Custom Resources?</h2>
-              <p className="text-primary-700 mt-2">
-                Our team can create customized compliance documents tailored to your specific equipment and farm operations.
-              </p>
-            </div>
-            <Button className="bg-primary hover:bg-primary-600 whitespace-nowrap">
-              Request Custom Resources
-            </Button>
+                  <CardTitle>{resource.title}</CardTitle>
+                  <CardDescription>{resource.description}</CardDescription>
+                </CardHeader>
+                <CardContent className="text-sm text-gray-500">
+                  Updated: {new Date(resource.updatedAt).toLocaleDateString()}
+                </CardContent>
+                <CardFooter>
+                  <Button className="w-full gap-2 bg-primary hover:bg-primary-600">
+                    <Download size={16} />
+                    Download
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
           </div>
+        </TabsContent>
+        
+        <TabsContent value="articles">
+          <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
+            {articles.map(article => (
+              <Card key={article.id} className="overflow-hidden">
+                <div className="md:flex">
+                  <div className="md:w-1/3">
+                    <img 
+                      src={article.imageUrl} 
+                      alt={article.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="md:w-2/3">
+                    <CardHeader>
+                      <CardTitle className="text-xl">{article.title}</CardTitle>
+                      <div className="flex gap-2 text-sm text-gray-500 mt-1">
+                        <span>{article.readTime}</span>
+                        <span>•</span>
+                        <span>{new Date(article.date).toLocaleDateString()}</span>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-gray-600">{article.description}</p>
+                    </CardContent>
+                    <CardFooter>
+                      <Button variant="outline" className="gap-2">
+                        <FileText size={16} />
+                        Read Article
+                      </Button>
+                    </CardFooter>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+      </Tabs>
+      
+      <div className="bg-primary-50 border border-primary-100 p-6 rounded-lg">
+        <div className="flex flex-col md:flex-row gap-6 items-center">
+          <div className="flex-1">
+            <h2 className="text-xl font-semibold text-primary-900">Need Custom Resources?</h2>
+            <p className="text-primary-700 mt-2">
+              Our team can create customized compliance documents tailored to your specific equipment and farm operations.
+            </p>
+          </div>
+          <Button className="bg-primary hover:bg-primary-600 whitespace-nowrap">
+            Request Custom Resources
+          </Button>
         </div>
       </div>
-    </DashboardLayout>
+    </div>
   );
 };
 

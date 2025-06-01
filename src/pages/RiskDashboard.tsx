@@ -1,6 +1,4 @@
-
 import { useState } from 'react';
-import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -192,297 +190,260 @@ const RiskDashboard = () => {
   };
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
-            <h1 className="text-3xl font-bold">Risk Dashboard</h1>
-            <p className="text-gray-500">Monitor and analyze safety incidents across your farm</p>
-          </div>
-          
-          <Tabs value={timeRange} onValueChange={setTimeRange} className="w-full md:w-auto">
-            <TabsList className="grid grid-cols-4 w-full md:w-auto">
-              <TabsTrigger value="week">Week</TabsTrigger>
-              <TabsTrigger value="month">Month</TabsTrigger>
-              <TabsTrigger value="quarter">Quarter</TabsTrigger>
-              <TabsTrigger value="year">Year</TabsTrigger>
-            </TabsList>
-          </Tabs>
+    <div className="space-y-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold">Risk Dashboard</h1>
+          <p className="text-gray-500">Monitor and analyze safety incidents across your farm</p>
         </div>
         
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <AlertTriangle className="text-amber-500" size={20} />
-                <span>Total Incidents</span>
-              </CardTitle>
-              <CardDescription>Last 30 days</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center">
-                <div className="text-3xl font-bold">{incidents.length}</div>
-                <div className="text-sm text-green-600 ml-2 flex items-center">
-                  <ArrowDownRight size={18} />
-                  <span>12% from last month</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <ShieldAlert className="text-red-500" size={20} />
-                <span>Critical Incidents</span>
-              </CardTitle>
-              <CardDescription>Last 30 days</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center">
-                <div className="text-3xl font-bold">{incidents.filter(i => i.severity === 'critical').length}</div>
-                <div className="text-sm text-red-600 ml-2 flex items-center">
-                  <ArrowUpRight size={18} />
-                  <span>5% from last month</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <BarChart3 className="text-blue-500" size={20} />
-                <span>Avg. Resolution Time</span>
-              </CardTitle>
-              <CardDescription>Days to resolve</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">4.2</div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <ClipboardCheck className="text-green-500" size={20} />
-                <span>Safety Score</span>
-              </CardTitle>
-              <CardDescription>Overall rating</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center">
-                <div className="text-3xl font-bold">86</div>
-                <div className="text-sm text-green-600 ml-2 flex items-center">
-                  <ArrowUpRight size={18} />
-                  <span>3 points</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-        
-        {/* Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Incidents by Type */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Incidents by Type</CardTitle>
-              <CardDescription>Distribution of incidents by category</CardDescription>
-            </CardHeader>
-            <CardContent className="h-80">
-              <ChartContainer 
-                config={{
-                  'Machinery': { color: COLORS.type.Machinery },
-                  'Chemical': { color: COLORS.type.Chemical },
-                  'Environmental': { color: COLORS.type.Environmental },
-                  'Physical': { color: COLORS.type.Physical },
-                  'Other': { color: COLORS.type.Other }
-                }}
-              >
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={incidentsByType}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {incidentsByType.map((entry, index) => (
-                        <Cell 
-                          key={`cell-${index}`} 
-                          fill={COLORS.type[entry.name as keyof typeof COLORS.type]} 
-                        />
-                      ))}
-                    </Pie>
-                    <Legend />
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </ChartContainer>
-            </CardContent>
-          </Card>
-          
-          {/* Incidents by Severity */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Incidents by Severity</CardTitle>
-              <CardDescription>Distribution of incident severity</CardDescription>
-            </CardHeader>
-            <CardContent className="h-80">
-              <ChartContainer 
-                config={{
-                  'Critical': { color: COLORS.severity.Critical },
-                  'High': { color: COLORS.severity.High },
-                  'Medium': { color: COLORS.severity.Medium },
-                  'Low': { color: COLORS.severity.Low }
-                }}
-              >
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={incidentsBySeverity}
-                    layout="vertical"
-                    margin={{ top: 20, right: 30, left: 80, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis type="number" />
-                    <YAxis dataKey="name" type="category" />
-                    <Tooltip />
-                    <Bar dataKey="value" fill="#8884d8">
-                      {incidentsBySeverity.map((entry, index) => (
-                        <Cell 
-                          key={`cell-${index}`} 
-                          fill={COLORS.severity[entry.name as keyof typeof COLORS.severity]} 
-                        />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </ChartContainer>
-            </CardContent>
-          </Card>
-          
-          {/* Incidents Trend */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Incidents Over Time</CardTitle>
-              <CardDescription>Monthly trend of safety incidents</CardDescription>
-            </CardHeader>
-            <CardContent className="h-80">
-              <ChartContainer config={{}}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart
-                    data={incidentsByMonth}
-                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Line 
-                      type="monotone" 
-                      dataKey="incidents" 
-                      stroke="#8884d8" 
-                      activeDot={{ r: 8 }} 
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </ChartContainer>
-            </CardContent>
-          </Card>
-          
-          {/* Incidents by Status */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Incidents by Status</CardTitle>
-              <CardDescription>Current status of all incidents</CardDescription>
-            </CardHeader>
-            <CardContent className="h-80">
-              <ChartContainer 
-                config={{
-                  'Reported': { color: COLORS.status.Reported },
-                  'Investigating': { color: COLORS.status.Investigating },
-                  'Mitigated': { color: COLORS.status.Mitigated },
-                  'Resolved': { color: COLORS.status.Resolved }
-                }}
-              >
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={incidentsByStatus}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {incidentsByStatus.map((entry, index) => (
-                        <Cell 
-                          key={`cell-${index}`} 
-                          fill={COLORS.status[entry.name as keyof typeof COLORS.status]} 
-                        />
-                      ))}
-                    </Pie>
-                    <Legend />
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </ChartContainer>
-            </CardContent>
-          </Card>
-        </div>
-        
-        {/* Recent Incidents Table */}
+        <Tabs value={timeRange} onValueChange={setTimeRange} className="w-full md:w-auto">
+          <TabsList className="grid grid-cols-4 w-full md:w-auto">
+            <TabsTrigger value="week">Week</TabsTrigger>
+            <TabsTrigger value="month">Month</TabsTrigger>
+            <TabsTrigger value="quarter">Quarter</TabsTrigger>
+            <TabsTrigger value="year">Year</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+      
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
-          <CardHeader>
-            <CardTitle>Recent Incidents</CardTitle>
-            <CardDescription>Latest reported safety concerns</CardDescription>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <AlertTriangle className="text-amber-500" size={20} />
+              <span>Total Incidents</span>
+            </CardTitle>
+            <CardDescription>Last 30 days</CardDescription>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Incident</TableHead>
-                  <TableHead>Location</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Severity</TableHead>
-                  <TableHead>Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {incidents.map((incident) => (
-                  <TableRow key={incident.id}>
-                    <TableCell className="font-medium">
-                      {new Date(incident.date).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>{incident.title}</TableCell>
-                    <TableCell>{incident.location}</TableCell>
-                    <TableCell className="capitalize">{incident.type}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <span className={`px-2 py-1 rounded-full text-xs ${getColorForSeverity(incident.severity)}`}>
-                          <span className="capitalize">{incident.severity}</span>
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="capitalize">{incident.status}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <div className="flex items-center">
+              <div className="text-3xl font-bold">{incidents.length}</div>
+              <div className="text-sm text-green-600 ml-2 flex items-center">
+                <ArrowDownRight size={18} />
+                <span>12% from last month</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <ShieldAlert className="text-red-500" size={20} />
+              <span>Critical Incidents</span>
+            </CardTitle>
+            <CardDescription>Last 30 days</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center">
+              <div className="text-3xl font-bold">{incidents.filter(i => i.severity === 'critical').length}</div>
+              <div className="text-sm text-red-600 ml-2 flex items-center">
+                <ArrowUpRight size={18} />
+                <span>5% from last month</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <BarChart3 className="text-blue-500" size={20} />
+              <span>Avg. Resolution Time</span>
+            </CardTitle>
+            <CardDescription>Days to resolve</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">4.2</div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <ClipboardCheck className="text-green-500" size={20} />
+              <span>Safety Score</span>
+            </CardTitle>
+            <CardDescription>Overall rating</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center">
+              <div className="text-3xl font-bold">86</div>
+              <div className="text-sm text-green-600 ml-2 flex items-center">
+                <ArrowUpRight size={18} />
+                <span>3 points</span>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
-    </DashboardLayout>
+      
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Incidents by Type */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Incidents by Type</CardTitle>
+            <CardDescription>Distribution of incidents by category</CardDescription>
+          </CardHeader>
+          <CardContent className="h-80">
+            <ChartContainer 
+              config={{
+                'Machinery': { color: COLORS.type.Machinery },
+                'Chemical': { color: COLORS.type.Chemical },
+                'Environmental': { color: COLORS.type.Environmental },
+                'Physical': { color: COLORS.type.Physical },
+                'Other': { color: COLORS.type.Other }
+              }}
+            >
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={incidentsByType}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {incidentsByType.map((entry, index) => (
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={COLORS.type[entry.name as keyof typeof COLORS.type]} 
+                      />
+                    ))}
+                  </Pie>
+                  <Legend />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                </PieChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          </CardContent>
+        </Card>
+        
+        {/* Incidents by Severity */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Incidents by Severity</CardTitle>
+            <CardDescription>Risk level distribution</CardDescription>
+          </CardHeader>
+          <CardContent className="h-80">
+            <ChartContainer 
+              config={{
+                'low': { color: COLORS.severity.low },
+                'medium': { color: COLORS.severity.medium },
+                'high': { color: COLORS.severity.high },
+                'critical': { color: COLORS.severity.critical }
+              }}
+            >
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={incidentsBySeverity}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {incidentsBySeverity.map((entry, index) => (
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={COLORS.severity[entry.name as keyof typeof COLORS.severity]} 
+                      />
+                    ))}
+                  </Pie>
+                  <Legend />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                </PieChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          </CardContent>
+        </Card>
+      </div>
+      
+      {/* Monthly Trends */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Monthly Safety Trends</CardTitle>
+          <CardDescription>Incident frequency and types over time</CardDescription>
+        </CardHeader>
+        <CardContent className="h-80">
+          <ChartContainer 
+            config={{
+              'total': { color: '#8884d8' },
+              'machinery': { color: COLORS.type.Machinery },
+              'chemical': { color: COLORS.type.Chemical },
+              'environmental': { color: COLORS.type.Environmental },
+              'physical': { color: COLORS.type.Physical }
+            }}
+          >
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={incidentsByMonth}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="incidents" name="Total Incidents" fill="#8884d8" />
+                <Bar dataKey="machinery" name="Machinery" fill={COLORS.type.Machinery} />
+                <Bar dataKey="chemical" name="Chemical" fill={COLORS.type.Chemical} />
+                <Bar dataKey="environmental" name="Environmental" fill={COLORS.type.Environmental} />
+                <Bar dataKey="physical" name="Physical" fill={COLORS.type.Physical} />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartContainer>
+        </CardContent>
+      </Card>
+      
+      {/* Recent Incidents Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Recent Incidents</CardTitle>
+          <CardDescription>Latest reported safety concerns</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Date</TableHead>
+                <TableHead>Incident</TableHead>
+                <TableHead>Location</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Severity</TableHead>
+                <TableHead>Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {incidents.map((incident) => (
+                <TableRow key={incident.id}>
+                  <TableCell className="font-medium">
+                    {new Date(incident.date).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell>{incident.title}</TableCell>
+                  <TableCell>{incident.location}</TableCell>
+                  <TableCell className="capitalize">{incident.type}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <span className={`px-2 py-1 rounded-full text-xs ${getColorForSeverity(incident.severity)}`}>
+                        <span className="capitalize">{incident.severity}</span>
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="capitalize">{incident.status}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
