@@ -1,6 +1,6 @@
-
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+
 import DashboardLayout from './DashboardLayout';
 
 const ProtectedRoute = () => {
@@ -15,8 +15,12 @@ const ProtectedRoute = () => {
     );
   }
   
-  // Allow access to the dashboard without authentication
-  // The dashboard layout will be rendered for all users
+  // If user is not authenticated, redirect to login
+  if (!user) {
+    return <Navigate to="/login" />;
+  }
+  
+  // User is authenticated, render the dashboard layout
   return (
     <DashboardLayout>
       <Outlet />

@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { Filter } from 'lucide-react';
 import { addDays } from 'date-fns';
 
 // Types
@@ -97,13 +96,13 @@ const Maintenance = () => {
     }
   ]);
 
-  const handleAddTask = (data: any) => {
+  const handleAddTask = (data: MaintenanceTask) => {
     const newTask: MaintenanceTask = {
       id: `${tasks.length + 1}`,
       title: data.title,
       equipment: data.equipment,
       equipmentId: `EQ-${Math.floor(Math.random() * 1000)}`,
-      type: data.type as any,
+      type: data.type,
       status: 'upcoming',
       dueDate: new Date(data.dueDate).toISOString(),
       assignedTo: data.assignedTo,

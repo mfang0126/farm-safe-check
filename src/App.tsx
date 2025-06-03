@@ -1,32 +1,31 @@
 
-import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
+import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "./contexts/AuthContext";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { AuthProvider } from "./components/AuthProvider";
 
 // Layouts
-import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import DashboardLayout from "./components/DashboardLayout";
+import Navbar from "./components/Navbar";
 
 // Pages
-import Landing from "./pages/Landing";
-import Login from "./pages/Login";
-import SignUp from "./pages/Signup";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Checklists from "./pages/Checklists";
 import Dashboard from "./pages/Dashboard";
 import Equipment from "./pages/Equipment";
-import Checklists from "./pages/Checklists";
-import ResourceHub from "./pages/ResourceHub";
-import Maintenance from "./pages/Maintenance";
-import RiskDashboard from "./pages/RiskDashboard";
-import IncidentReporting from "./pages/IncidentReporting";
-import TrainingRegister from "./pages/TrainingRegister";
-import TaskDashboard from "./pages/TaskDashboard";
 import Health from "./pages/Health";
+import IncidentReporting from "./pages/IncidentReporting";
+import Landing from "./pages/Landing";
+import Login from "./pages/Login";
+import Maintenance from "./pages/Maintenance";
 import NotFound from "./pages/NotFound";
-import ProtectedRoute from "./components/ProtectedRoute";
+import ResourceHub from "./pages/ResourceHub";
+import RiskDashboard from "./pages/RiskDashboard";
+import SignUp from "./pages/Signup";
+import TaskDashboard from "./pages/TaskDashboard";
+import TrainingRegister from "./pages/TrainingRegister";
 
 const queryClient = new QueryClient();
 

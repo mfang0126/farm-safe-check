@@ -1,6 +1,5 @@
-
 import { useState } from 'react';
-import { Link, useNavigate, Navigate } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -14,12 +13,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ChevronLeft } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errors, setErrors] = useState<{email?: string; password?: string}>({});
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
   const { signIn, user } = useAuth();
 
   // If user is already logged in, redirect to dashboard
@@ -27,11 +27,32 @@ const Login = () => {
     return <Navigate to="/dashboard" />;
   }
 
+  const validateForm = () => {
+    const newErrors: {email?: string; password?: string} = {};
+    let isValid = true;
+
+    if (!email) {
+      newErrors.email = 'Email is required';
+      isValid = false;
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      newErrors.email = 'Email is invalid';
+      isValid = false;
+    }
+
+    if (!password) {
+      newErrors.password = 'Password is required';
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate inputs
-    if (!email || !password) {
+    // Validate form
+    if (!validateForm()) {
       return;
     }
     
@@ -41,7 +62,10 @@ const Login = () => {
       await signIn(email, password);
       // Navigation is handled by auth context
     } catch (error) {
-      // Error is handled by auth context
+      // Error is handled by auth context, but we can add form-specific errors
+      if ((error as Error).message.includes('Invalid login credentials')) {
+        toast.error('Invalid email or password. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -79,7 +103,11 @@ const Login = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isLoading}
                   required
+                  className={errors.email ? "border-red-500" : ""}
                 />
+                {errors.email && (
+                  <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+                )}
               </div>
               
               <div className="space-y-2">
@@ -97,7 +125,11 @@ const Login = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isLoading}
                   required
+                  className={errors.password ? "border-red-500" : ""}
                 />
+                {errors.password && (
+                  <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+                )}
               </div>
             </CardContent>
             
