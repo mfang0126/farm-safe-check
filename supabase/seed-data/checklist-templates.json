@@ -1,0 +1,190 @@
+{
+  "templates": [
+    {
+      "id": "11111111-1111-1111-1111-111111111111",
+      "user_id": "7a6552d1-2f67-4645-b9b6-3c470ab55888",
+      "title": "Tractor Pre-Operation Safety Checklist",
+      "description": "Standard safety check for all tractors before operation",
+      "category": "Tractors",
+      "item_count": 17,
+      "is_default": true,
+      "sections": [
+        {
+          "name": "Engine & Fluids",
+          "items": [
+            {"id": 1, "text": "Engine oil level is adequate", "checked": false},
+            {"id": 2, "text": "Coolant level is adequate", "checked": false},
+            {"id": 3, "text": "Fuel level is adequate for planned operation", "checked": false},
+            {"id": 4, "text": "No visible fluid leaks", "checked": false}
+          ]
+        },
+        {
+          "name": "Safety Systems",
+          "items": [
+            {"id": 5, "text": "ROPS (Roll-Over Protection Structure) is intact", "checked": false},
+            {"id": 6, "text": "Seatbelt functions properly", "checked": false},
+            {"id": 7, "text": "PTO shields are in place and undamaged", "checked": false},
+            {"id": 8, "text": "SMV (Slow Moving Vehicle) emblem is visible and clean", "checked": false},
+            {"id": 9, "text": "All warning lights function properly", "checked": false}
+          ]
+        },
+        {
+          "name": "Lights & Electronics",
+          "items": [
+            {"id": 10, "text": "Headlights function properly", "checked": false},
+            {"id": 11, "text": "Tail lights function properly", "checked": false},
+            {"id": 12, "text": "Turn signals function properly", "checked": false},
+            {"id": 13, "text": "Horn functions properly", "checked": false}
+          ]
+        },
+        {
+          "name": "Tires & Brakes",
+          "items": [
+            {"id": 14, "text": "Tire pressure is appropriate", "checked": false},
+            {"id": 15, "text": "No visible tire damage", "checked": false},
+            {"id": 16, "text": "Brakes function properly", "checked": false},
+            {"id": 17, "text": "Parking brake functions properly", "checked": false}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "22222222-2222-2222-2222-222222222222",
+      "user_id": "7a6552d1-2f67-4645-b9b6-3c470ab55888",
+      "title": "Harvester Safety Inspection",
+      "description": "Comprehensive harvester safety and maintenance check",
+      "category": "Harvesters",
+      "item_count": 20,
+      "is_default": true,
+      "sections": [
+        {
+          "name": "Engine & Power",
+          "items": [
+            {"id": 1, "text": "Engine oil level and condition", "checked": false},
+            {"id": 2, "text": "Coolant level and condition", "checked": false},
+            {"id": 3, "text": "Fuel system check", "checked": false},
+            {"id": 4, "text": "Air filter condition", "checked": false},
+            {"id": 5, "text": "Belt tension and condition", "checked": false}
+          ]
+        },
+        {
+          "name": "Safety Systems",
+          "items": [
+            {"id": 6, "text": "ROPS structure intact", "checked": false},
+            {"id": 7, "text": "Safety shields in place", "checked": false},
+            {"id": 8, "text": "Emergency stops functional", "checked": false},
+            {"id": 9, "text": "Fire extinguisher present and charged", "checked": false},
+            {"id": 10, "text": "Warning beacons operational", "checked": false}
+          ]
+        },
+        {
+          "name": "Cutting & Threshing",
+          "items": [
+            {"id": 11, "text": "Cutter bar condition", "checked": false},
+            {"id": 12, "text": "Reel operation", "checked": false},
+            {"id": 13, "text": "Cylinder and concave clearance", "checked": false},
+            {"id": 14, "text": "Cleaning shoe adjustment", "checked": false},
+            {"id": 15, "text": "Stone trap clear", "checked": false}
+          ]
+        },
+        {
+          "name": "Mobility & Transport",
+          "items": [
+            {"id": 16, "text": "Tire pressure and condition", "checked": false},
+            {"id": 17, "text": "Brake system function", "checked": false},
+            {"id": 18, "text": "Steering operation", "checked": false},
+            {"id": 19, "text": "Transport locks functional", "checked": false},
+            {"id": 20, "text": "SMV emblem visible", "checked": false}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "33333333-3333-3333-3333-333333333333",
+      "user_id": "7a6552d1-2f67-4645-b9b6-3c470ab55888",
+      "title": "Sprayer Equipment Safety Verification",
+      "description": "Safety check for chemical spraying equipment",
+      "category": "Sprayers",
+      "item_count": 18,
+      "is_default": true,
+      "sections": [
+        {
+          "name": "Chemical Safety",
+          "items": [
+            {"id": 1, "text": "Chemical containment system intact", "checked": false},
+            {"id": 2, "text": "No leaks in tank or lines", "checked": false},
+            {"id": 3, "text": "Emergency wash system functional", "checked": false},
+            {"id": 4, "text": "PPE available and in good condition", "checked": false},
+            {"id": 5, "text": "Chemical compatibility verified", "checked": false}
+          ]
+        },
+        {
+          "name": "Spray System",
+          "items": [
+            {"id": 6, "text": "Nozzles clean and properly aligned", "checked": false},
+            {"id": 7, "text": "Pressure gauge functional", "checked": false},
+            {"id": 8, "text": "Boom sections operate smoothly", "checked": false},
+            {"id": 9, "text": "Flow rate calibrated", "checked": false},
+            {"id": 10, "text": "Filters clean and secure", "checked": false}
+          ]
+        },
+        {
+          "name": "Mechanical Systems",
+          "items": [
+            {"id": 11, "text": "Pump operation check", "checked": false},
+            {"id": 12, "text": "Agitation system functional", "checked": false},
+            {"id": 13, "text": "Control valve operation", "checked": false},
+            {"id": 14, "text": "Hose and fitting condition", "checked": false}
+          ]
+        },
+        {
+          "name": "Safety & Documentation",
+          "items": [
+            {"id": 15, "text": "Safety data sheets available", "checked": false},
+            {"id": 16, "text": "Application records updated", "checked": false},
+            {"id": 17, "text": "Weather conditions suitable", "checked": false},
+            {"id": 18, "text": "Buffer zones marked", "checked": false}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "44444444-4444-4444-4444-444444444444",
+      "user_id": "7a6552d1-2f67-4645-b9b6-3c470ab55888",
+      "title": "Farm Vehicle Safety Inspection",
+      "description": "For ATVs, UTVs, and farm utility vehicles",
+      "category": "Vehicles",
+      "item_count": 12,
+      "is_default": true,
+      "sections": [
+        {
+          "name": "Pre-Operation",
+          "items": [
+            {"id": 1, "text": "Fuel level adequate", "checked": false},
+            {"id": 2, "text": "Engine oil level check", "checked": false},
+            {"id": 3, "text": "Brake fluid level", "checked": false},
+            {"id": 4, "text": "Tire pressure and condition", "checked": false}
+          ]
+        },
+        {
+          "name": "Safety Equipment",
+          "items": [
+            {"id": 5, "text": "Helmet available and undamaged", "checked": false},
+            {"id": 6, "text": "Roll bar/cage intact", "checked": false},
+            {"id": 7, "text": "Seat belts functional", "checked": false},
+            {"id": 8, "text": "Warning flags/lights operational", "checked": false}
+          ]
+        },
+        {
+          "name": "Operational Check",
+          "items": [
+            {"id": 9, "text": "Steering responsive", "checked": false},
+            {"id": 10, "text": "Brakes effective", "checked": false},
+            {"id": 11, "text": "Throttle control smooth", "checked": false},
+            {"id": 12, "text": "Kill switch functional", "checked": false}
+          ]
+        }
+      ]
+    }
+  ]
+} 

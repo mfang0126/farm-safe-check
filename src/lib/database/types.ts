@@ -10,6 +10,11 @@ export type Equipment = TablesRow<'equipment'>;
 export type EquipmentInsert = TablesInsert<'equipment'>;
 export type EquipmentUpdate = TablesUpdate<'equipment'>;
 
+// Maintenance types from database schema
+export type MaintenanceTask = TablesRow<'maintenance_tasks'>;
+export type MaintenanceTaskInsert = TablesInsert<'maintenance_tasks'>;
+export type MaintenanceTaskUpdate = TablesUpdate<'maintenance_tasks'>;
+
 // Task types (to be added to database schema)  
 export interface Task {
   id: string;
@@ -48,7 +53,6 @@ export interface ChecklistTemplate {
   category: string;
   item_count: number;
   sections: ChecklistSection[];
-  is_default: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -115,7 +119,6 @@ export interface TaskFilter extends BaseFilter {
 
 export interface ChecklistTemplateFilter extends BaseFilter {
   category?: string;
-  is_default?: boolean;
 }
 
 export interface CompletedChecklistFilter extends BaseFilter {
@@ -123,4 +126,12 @@ export interface CompletedChecklistFilter extends BaseFilter {
   template_id?: string;
   equipment_id?: string;
   completed_by?: string;
+}
+
+export interface MaintenanceTaskFilter extends BaseFilter {
+  status?: MaintenanceTask['status'] | 'all';
+  type?: MaintenanceTask['type'];
+  priority?: MaintenanceTask['priority'];
+  equipment_id?: string;
+  assigned_to?: string;
 } 

@@ -46,14 +46,11 @@ export class ChecklistRepository {
       let query = (supabase as any)
         .from('checklist_templates')
         .select('*', { count: 'exact' })
-        .or(`user_id.eq.${userId},is_default.eq.true`);
+        .eq('user_id', userId);
 
       // Apply filters
       if (filter?.category) {
         query = query.eq('category', filter.category);
-      }
-      if (filter?.is_default !== undefined) {
-        query = query.eq('is_default', filter.is_default);
       }
 
       // Apply query options
@@ -92,7 +89,7 @@ export class ChecklistRepository {
         .from('checklist_templates')
         .select('*')
         .eq('id', id)
-        .or(`user_id.eq.${userId},is_default.eq.true`)
+        .eq('user_id', userId)
         .single();
 
       if (error) {

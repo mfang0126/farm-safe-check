@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -11,8 +11,14 @@ import {
   ClipboardCheck,
   ArrowDownRight,
   ArrowUpRight,
+  Wrench,
+  FileX,
+  Calendar,
 } from 'lucide-react';
-import { IncidentSeverity, SafetyIncident } from '@/types/incidents';
+import { useAuth } from '@/contexts/AuthContext';
+import { equipmentService } from '@/lib/database/services/equipment';
+import { checklistService } from '@/lib/database/services/checklist';
+import { maintenanceService } from '@/lib/database/services/maintenance';
 import { 
   ChartContainer, 
   ChartTooltip, 
@@ -34,152 +40,206 @@ import {
   Cell
 } from 'recharts';
 
+interface SafetyRisk {
+  id: string;
+  category: 'Equipment Risk' | 'Checklist Failure' | 'Overdue Maintenance';
+  title: string;
+  type: string;
+  severity: 'critical' | 'high' | 'medium' | 'low';
+  status: string;
+  date: string;
+  notes?: string;
+  location?: string;
+}
+
+interface RiskStats {
+  totalRisks: number;
+  criticalRisks: number;
+  safetyScore: number;
+  avgResolutionTime: number;
+  risksByType: Array<{ name: string; value: number; color: string }>;
+  risksBySeverity: Array<{ name: string; value: number; color: string }>;
+  monthlyTrends: Array<{ name: string; risks: number }>;
+}
+
 const RiskDashboard = () => {
   const [timeRange, setTimeRange] = useState<string>('month');
+  const [risks, setRisks] = useState<SafetyRisk[]>([]);
+  const [stats, setStats] = useState<RiskStats>({
+    totalRisks: 0,
+    criticalRisks: 0,
+    safetyScore: 100,
+    avgResolutionTime: 0,
+    risksByType: [],
+    risksBySeverity: [],
+    monthlyTrends: []
+  });
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
 
-  // Mock data for incidents
-  const incidents: SafetyIncident[] = [
-    {
-      id: '1',
-      title: 'Tractor Roll-over Incident',
-      description: 'Tractor rolled over on steep incline while plowing',
-      date: '2025-04-20',
-      location: 'North Field',
-      type: 'machinery',
-      severity: 'high',
-      status: 'resolved',
-      reportedBy: 'John Smith',
-      affectedEquipment: ['John Deere X7'],
-      resolutionSteps: 'Implemented new training for steep terrain operations'
-    },
-    {
-      id: '2',
-      title: 'Chemical Spill',
-      description: 'Herbicide container leaked during transfer',
-      date: '2025-05-01',
-      location: 'Storage Shed',
-      type: 'chemical',
-      severity: 'medium',
-      status: 'mitigated',
-      reportedBy: 'Maria Garcia',
-      resolutionSteps: 'Replaced damaged containers, added spill containment trays'
-    },
-    {
-      id: '3',
-      title: 'Heat Exhaustion',
-      description: 'Worker experienced heat exhaustion during harvest',
-      date: '2025-04-28',
-      location: 'South Field',
-      type: 'environmental',
-      severity: 'medium',
-      status: 'resolved',
-      reportedBy: 'Robert Chen',
-      resolutionSteps: 'Added more shade stations and mandatory water breaks'
-    },
-    {
-      id: '4',
-      title: 'Machinery Entanglement',
-      description: 'Worker\'s clothing caught in unshielded PTO shaft',
-      date: '2025-04-15',
-      location: 'Equipment Barn',
-      type: 'machinery',
-      severity: 'critical',
-      status: 'resolved',
-      reportedBy: 'Sarah Johnson',
-      affectedEquipment: ['PTO Shaft', 'Tiller Attachment'],
-      resolutionSteps: 'Replaced all missing shields, conducted safety training session'
-    },
-    {
-      id: '5',
-      title: 'Pesticide Exposure',
-      description: 'Worker reported skin irritation after spraying',
-      date: '2025-05-02',
-      location: 'Orchard',
-      type: 'chemical',
-      severity: 'low',
-      status: 'investigating',
-      reportedBy: 'David Wilson',
-      resolutionSteps: 'Reviewing PPE protocols and sprayer calibration'
-    }
-  ];
+  useEffect(() => {
+    const fetchRiskData = async () => {
+      if (!user) return;
 
-  // Aggregate data for charts
-  const incidentsByType = [
-    { name: 'Machinery', value: incidents.filter(i => i.type === 'machinery').length },
-    { name: 'Chemical', value: incidents.filter(i => i.type === 'chemical').length },
-    { name: 'Environmental', value: incidents.filter(i => i.type === 'environmental').length },
-    { name: 'Physical', value: incidents.filter(i => i.type === 'physical').length },
-    { name: 'Other', value: incidents.filter(i => i.type === 'other').length }
-  ];
+      try {
+        setLoading(true);
 
-  const incidentsBySeverity = [
-    { name: 'Critical', value: incidents.filter(i => i.severity === 'critical').length },
-    { name: 'High', value: incidents.filter(i => i.severity === 'high').length },
-    { name: 'Medium', value: incidents.filter(i => i.severity === 'medium').length },
-    { name: 'Low', value: incidents.filter(i => i.severity === 'low').length }
-  ];
+        // Fetch equipment data
+        const equipmentResult = await equipmentService.getUserEquipment(user.id);
+        const equipment = equipmentResult.data || [];
 
-  const incidentsByMonth = [
-    { name: 'Jan', incidents: 3 },
-    { name: 'Feb', incidents: 2 },
-    { name: 'Mar', incidents: 5 },
-    { name: 'Apr', incidents: 4 },
-    { name: 'May', incidents: 2 },
-    { name: 'Jun', incidents: 0 },
-    { name: 'Jul', incidents: 0 },
-    { name: 'Aug', incidents: 0 },
-    { name: 'Sep', incidents: 0 },
-    { name: 'Oct', incidents: 0 },
-    { name: 'Nov', incidents: 0 },
-    { name: 'Dec', incidents: 0 },
-  ];
+        // Fetch completed checklists  
+        const checklistsResult = await checklistService.getCompletedChecklists(user.id);
+        const checklists = checklistsResult.data || [];
 
-  const incidentsByStatus = [
-    { name: 'Reported', value: incidents.filter(i => i.status === 'reported').length },
-    { name: 'Investigating', value: incidents.filter(i => i.status === 'investigating').length },
-    { name: 'Mitigated', value: incidents.filter(i => i.status === 'mitigated').length },
-    { name: 'Resolved', value: incidents.filter(i => i.status === 'resolved').length }
-  ];
+        // Fetch maintenance tasks
+        const maintenanceResult = await maintenanceService.getUserMaintenanceTasks(user.id);
+        const maintenanceTasks = maintenanceResult.data || [];
 
-  // Chart colors
-  const COLORS = {
-    type: {
-      'Machinery': '#8884d8',
-      'Chemical': '#82ca9d',
-      'Environmental': '#ffc658',
-      'Physical': '#ff8042',
-      'Other': '#0088fe'
-    },
-    severity: {
-      'Critical': '#d9534f',
-      'High': '#f0ad4e',
-      'Medium': '#5bc0de',
-      'Low': '#5cb85c'
-    },
-    status: {
-      'Reported': '#ff8042',
-      'Investigating': '#ffc658',
-      'Mitigated': '#82ca9d',
-      'Resolved': '#8884d8'
-    }
-  };
+        // Build safety risks from real data
+        const safetyRisks: SafetyRisk[] = [];
 
-  const getSeverityIcon = (severity: IncidentSeverity) => {
+        // Equipment risks (Failed or Needs Maintenance)
+        equipment.forEach(eq => {
+          if (eq.status === 'Failed' || eq.status === 'Needs Maintenance') {
+            safetyRisks.push({
+              id: `equipment-${eq.id}`,
+              category: 'Equipment Risk',
+              title: `${eq.make_model} - ${eq.status}`,
+              type: eq.type || 'Equipment',
+              severity: eq.status === 'Failed' ? 'critical' : 'high',
+              status: eq.status,
+              date: eq.last_inspection || eq.updated_at,
+              notes: eq.notes,
+              location: 'Farm Equipment'
+            });
+          }
+        });
+
+        // Checklist failure risks
+        checklists.forEach(checklist => {
+          if (checklist.status === 'Failed' || checklist.status === 'Needs Maintenance') {
+            safetyRisks.push({
+              id: `checklist-${checklist.id}`,
+              category: 'Checklist Failure',
+              title: `${checklist.equipment_name} - ${checklist.status}`,
+              type: 'Safety Checklist',
+              severity: checklist.status === 'Failed' ? 'critical' : 'high',
+              status: checklist.status,
+              date: checklist.completed_at,
+              notes: checklist.notes,
+              location: checklist.equipment_name
+            });
+          }
+        });
+
+        // Overdue maintenance risks
+        const now = new Date();
+        const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+        
+        maintenanceTasks.forEach(task => {
+          if (task.status !== 'completed') {
+            const dueDate = new Date(task.due_date);
+            if (dueDate <= weekFromNow) {
+              const overdue = dueDate < now;
+              const severity = overdue ? 
+                (dueDate < new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000) ? 'critical' : 'high') : 
+                'medium';
+              
+              safetyRisks.push({
+                id: `maintenance-${task.id}`,
+                category: 'Overdue Maintenance',
+                title: `${task.title} - ${overdue ? 'Overdue' : 'Due Soon'}`,
+                type: 'Maintenance Task',
+                severity,
+                status: task.status,
+                date: task.due_date,
+                notes: task.description,
+                location: 'Maintenance Schedule'
+              });
+            }
+          }
+        });
+
+        // Calculate statistics
+        const totalRisks = safetyRisks.length;
+        const criticalRisks = safetyRisks.filter(r => r.severity === 'critical').length;
+        
+        // Calculate safety score (100 - penalty for risks)
+        const safetyScore = Math.max(0, 100 - (criticalRisks * 20) - (safetyRisks.filter(r => r.severity === 'high').length * 10) - (safetyRisks.filter(r => r.severity === 'medium').length * 5));
+
+        // Group by type for charts
+        const typeGroups = safetyRisks.reduce((acc, risk) => {
+          acc[risk.category] = (acc[risk.category] || 0) + 1;
+          return acc;
+        }, {} as Record<string, number>);
+
+        const risksByType = Object.entries(typeGroups).map(([name, value]) => ({
+          name,
+          value,
+          color: name === 'Equipment Risk' ? '#ff8042' : 
+                 name === 'Checklist Failure' ? '#d9534f' : '#ffc658'
+        }));
+
+        // Group by severity
+        const severityGroups = safetyRisks.reduce((acc, risk) => {
+          acc[risk.severity] = (acc[risk.severity] || 0) + 1;
+          return acc;
+        }, {} as Record<string, number>);
+
+        const risksBySeverity = Object.entries(severityGroups).map(([name, value]) => ({
+          name: name.charAt(0).toUpperCase() + name.slice(1),
+          value,
+          color: name === 'critical' ? '#d9534f' :
+                 name === 'high' ? '#f0ad4e' :
+                 name === 'medium' ? '#5bc0de' : '#5cb85c'
+        }));
+
+        // Generate monthly trends (mock for now, could be enhanced with historical data)
+        const monthlyTrends = [
+          'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+        ].map((month, index) => ({
+          name: month,
+          risks: index === 5 ? totalRisks : Math.max(0, totalRisks - Math.floor(Math.random() * 3))
+        }));
+
+        setRisks(safetyRisks);
+        setStats({
+          totalRisks,
+          criticalRisks,
+          safetyScore,
+          avgResolutionTime: 3.5, // Could be calculated from resolved tasks
+          risksByType,
+          risksBySeverity,
+          monthlyTrends
+        });
+
+      } catch (error) {
+        console.error('Error fetching risk data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRiskData();
+  }, [user]);
+
+  const getSeverityIcon = (severity: string) => {
     switch (severity) {
       case 'critical':
-        return <AlertTriangle className="text-red-500" />;
+        return <AlertTriangle className="text-red-500" size={16} />;
       case 'high':
-        return <ShieldAlert className="text-amber-500" />;
+        return <ShieldAlert className="text-amber-500" size={16} />;
       case 'medium':
-        return <CircleAlert className="text-blue-500" />;
+        return <CircleAlert className="text-blue-500" size={16} />;
       case 'low':
-        return <TrendingDown className="text-green-500" />;
+        return <TrendingDown className="text-green-500" size={16} />;
       default:
-        return <AlertTriangle />;
+        return <AlertTriangle size={16} />;
     }
   };
 
-  const getColorForSeverity = (severity: IncidentSeverity) => {
+  const getColorForSeverity = (severity: string) => {
     switch (severity) {
       case 'critical': return 'bg-red-100 text-red-800';
       case 'high': return 'bg-amber-100 text-amber-800';
@@ -189,12 +249,51 @@ const RiskDashboard = () => {
     }
   };
 
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case 'Equipment Risk':
+        return <Wrench className="text-orange-500" size={16} />;
+      case 'Checklist Failure':
+        return <FileX className="text-red-500" size={16} />;
+      case 'Overdue Maintenance':
+        return <Calendar className="text-amber-500" size={16} />;
+      default:
+        return <AlertTriangle size={16} />;
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <h1 className="text-3xl font-bold">Risk Dashboard</h1>
+            <p className="text-gray-500">Monitor and analyze safety risks across your farm</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[1, 2, 3, 4].map((i) => (
+            <Card key={i}>
+              <CardHeader className="pb-2">
+                <div className="h-4 bg-gray-200 rounded animate-pulse mb-2"></div>
+                <div className="h-3 bg-gray-200 rounded animate-pulse w-3/4"></div>
+              </CardHeader>
+              <CardContent>
+                <div className="h-8 bg-gray-200 rounded animate-pulse"></div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold">Risk Dashboard</h1>
-          <p className="text-gray-500">Monitor and analyze safety incidents across your farm</p>
+          <p className="text-gray-500">Monitor and analyze safety risks across your farm</p>
         </div>
         
         <Tabs value={timeRange} onValueChange={setTimeRange} className="w-full md:w-auto">
@@ -213,16 +312,15 @@ const RiskDashboard = () => {
           <CardHeader className="pb-2">
             <CardTitle className="text-lg flex items-center gap-2">
               <AlertTriangle className="text-amber-500" size={20} />
-              <span>Total Incidents</span>
+              <span>Total Risks</span>
             </CardTitle>
-            <CardDescription>Last 30 days</CardDescription>
+            <CardDescription>Current safety concerns</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex items-center">
-              <div className="text-3xl font-bold">{incidents.length}</div>
-              <div className="text-sm text-green-600 ml-2 flex items-center">
-                <ArrowDownRight size={18} />
-                <span>12% from last month</span>
+              <div className="text-3xl font-bold">{stats.totalRisks}</div>
+              <div className="text-sm text-blue-600 ml-2 flex items-center">
+                <span>Real-time monitoring</span>
               </div>
             </div>
           </CardContent>
@@ -232,16 +330,25 @@ const RiskDashboard = () => {
           <CardHeader className="pb-2">
             <CardTitle className="text-lg flex items-center gap-2">
               <ShieldAlert className="text-red-500" size={20} />
-              <span>Critical Incidents</span>
+              <span>Critical Risks</span>
             </CardTitle>
-            <CardDescription>Last 30 days</CardDescription>
+            <CardDescription>Immediate attention required</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex items-center">
-              <div className="text-3xl font-bold">{incidents.filter(i => i.severity === 'critical').length}</div>
-              <div className="text-sm text-red-600 ml-2 flex items-center">
-                <ArrowUpRight size={18} />
-                <span>5% from last month</span>
+              <div className="text-3xl font-bold">{stats.criticalRisks}</div>
+              <div className={`text-sm ml-2 flex items-center ${stats.criticalRisks > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                {stats.criticalRisks > 0 ? (
+                  <>
+                    <ArrowUpRight size={18} />
+                    <span>Needs action</span>
+                  </>
+                ) : (
+                  <>
+                    <ArrowDownRight size={18} />
+                    <span>All clear</span>
+                  </>
+                )}
               </div>
             </div>
           </CardContent>
@@ -251,12 +358,12 @@ const RiskDashboard = () => {
           <CardHeader className="pb-2">
             <CardTitle className="text-lg flex items-center gap-2">
               <BarChart3 className="text-blue-500" size={20} />
-              <span>Avg. Resolution Time</span>
+              <span>Avg. Resolution</span>
             </CardTitle>
-            <CardDescription>Days to resolve</CardDescription>
+            <CardDescription>Days to resolve issues</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">4.2</div>
+            <div className="text-3xl font-bold">{stats.avgResolutionTime}</div>
           </CardContent>
         </Card>
         
@@ -266,14 +373,27 @@ const RiskDashboard = () => {
               <ClipboardCheck className="text-green-500" size={20} />
               <span>Safety Score</span>
             </CardTitle>
-            <CardDescription>Overall rating</CardDescription>
+            <CardDescription>Overall farm safety rating</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex items-center">
-              <div className="text-3xl font-bold">86</div>
-              <div className="text-sm text-green-600 ml-2 flex items-center">
-                <ArrowUpRight size={18} />
-                <span>3 points</span>
+              <div className="text-3xl font-bold">{stats.safetyScore}</div>
+              <div className={`text-sm ml-2 flex items-center ${stats.safetyScore >= 80 ? 'text-green-600' : stats.safetyScore >= 60 ? 'text-amber-600' : 'text-red-600'}`}>
+                {stats.safetyScore >= 80 ? (
+                  <>
+                    <ArrowUpRight size={18} />
+                    <span>Excellent</span>
+                  </>
+                ) : stats.safetyScore >= 60 ? (
+                  <>
+                    <span>Good</span>
+                  </>
+                ) : (
+                  <>
+                    <ArrowDownRight size={18} />
+                    <span>Needs improvement</span>
+                  </>
+                )}
               </div>
             </div>
           </CardContent>
@@ -282,26 +402,18 @@ const RiskDashboard = () => {
       
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Incidents by Type */}
+        {/* Risks by Type */}
         <Card>
           <CardHeader>
-            <CardTitle>Incidents by Type</CardTitle>
-            <CardDescription>Distribution of incidents by category</CardDescription>
+            <CardTitle>Risks by Category</CardTitle>
+            <CardDescription>Distribution of safety risks by source</CardDescription>
           </CardHeader>
           <CardContent className="h-80">
-            <ChartContainer 
-              config={{
-                'Machinery': { color: COLORS.type.Machinery },
-                'Chemical': { color: COLORS.type.Chemical },
-                'Environmental': { color: COLORS.type.Environmental },
-                'Physical': { color: COLORS.type.Physical },
-                'Other': { color: COLORS.type.Other }
-              }}
-            >
+            {stats.risksByType.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
-                    data={incidentsByType}
+                    data={stats.risksByType}
                     cx="50%"
                     cy="50%"
                     labelLine={false}
@@ -310,40 +422,38 @@ const RiskDashboard = () => {
                     fill="#8884d8"
                     dataKey="value"
                   >
-                    {incidentsByType.map((entry, index) => (
-                      <Cell 
-                        key={`cell-${index}`} 
-                        fill={COLORS.type[entry.name as keyof typeof COLORS.type]} 
-                      />
+                    {stats.risksByType.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
                   <Legend />
-                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Tooltip />
                 </PieChart>
               </ResponsiveContainer>
-            </ChartContainer>
+            ) : (
+              <div className="flex items-center justify-center h-full text-green-600">
+                <div className="text-center">
+                  <ClipboardCheck size={48} className="mx-auto mb-2" />
+                  <p>No safety risks detected!</p>
+                  <p className="text-sm text-gray-500">Your farm safety is on track</p>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
         
-        {/* Incidents by Severity */}
+        {/* Risks by Severity */}
         <Card>
           <CardHeader>
-            <CardTitle>Incidents by Severity</CardTitle>
+            <CardTitle>Risks by Severity</CardTitle>
             <CardDescription>Risk level distribution</CardDescription>
           </CardHeader>
           <CardContent className="h-80">
-            <ChartContainer 
-              config={{
-                'low': { color: COLORS.severity.low },
-                'medium': { color: COLORS.severity.medium },
-                'high': { color: COLORS.severity.high },
-                'critical': { color: COLORS.severity.critical }
-              }}
-            >
+            {stats.risksBySeverity.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
-                    data={incidentsBySeverity}
+                    data={stats.risksBySeverity}
                     cx="50%"
                     cy="50%"
                     labelLine={false}
@@ -352,18 +462,23 @@ const RiskDashboard = () => {
                     fill="#8884d8"
                     dataKey="value"
                   >
-                    {incidentsBySeverity.map((entry, index) => (
-                      <Cell 
-                        key={`cell-${index}`} 
-                        fill={COLORS.severity[entry.name as keyof typeof COLORS.severity]} 
-                      />
+                    {stats.risksBySeverity.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
                   <Legend />
-                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Tooltip />
                 </PieChart>
               </ResponsiveContainer>
-            </ChartContainer>
+            ) : (
+              <div className="flex items-center justify-center h-full text-green-600">
+                <div className="text-center">
+                  <ShieldAlert size={48} className="mx-auto mb-2" />
+                  <p>All risks under control!</p>
+                  <p className="text-sm text-gray-500">No severity concerns</p>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -372,75 +487,74 @@ const RiskDashboard = () => {
       <Card>
         <CardHeader>
           <CardTitle>Monthly Safety Trends</CardTitle>
-          <CardDescription>Incident frequency and types over time</CardDescription>
+          <CardDescription>Risk frequency over time</CardDescription>
         </CardHeader>
         <CardContent className="h-80">
-          <ChartContainer 
-            config={{
-              'total': { color: '#8884d8' },
-              'machinery': { color: COLORS.type.Machinery },
-              'chemical': { color: COLORS.type.Chemical },
-              'environmental': { color: COLORS.type.Environmental },
-              'physical': { color: COLORS.type.Physical }
-            }}
-          >
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={incidentsByMonth}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="incidents" name="Total Incidents" fill="#8884d8" />
-                <Bar dataKey="machinery" name="Machinery" fill={COLORS.type.Machinery} />
-                <Bar dataKey="chemical" name="Chemical" fill={COLORS.type.Chemical} />
-                <Bar dataKey="environmental" name="Environmental" fill={COLORS.type.Environmental} />
-                <Bar dataKey="physical" name="Physical" fill={COLORS.type.Physical} />
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartContainer>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={stats.monthlyTrends}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="risks" name="Safety Risks" fill="#ff8042" />
+            </BarChart>
+          </ResponsiveContainer>
         </CardContent>
       </Card>
       
-      {/* Recent Incidents Table */}
+      {/* Current Risks Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Recent Incidents</CardTitle>
-          <CardDescription>Latest reported safety concerns</CardDescription>
+          <CardTitle>Current Safety Risks</CardTitle>
+          <CardDescription>Active safety concerns requiring attention</CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead>Incident</TableHead>
-                <TableHead>Location</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Severity</TableHead>
-                <TableHead>Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {incidents.map((incident) => (
-                <TableRow key={incident.id}>
-                  <TableCell className="font-medium">
-                    {new Date(incident.date).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell>{incident.title}</TableCell>
-                  <TableCell>{incident.location}</TableCell>
-                  <TableCell className="capitalize">{incident.type}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <span className={`px-2 py-1 rounded-full text-xs ${getColorForSeverity(incident.severity)}`}>
-                        <span className="capitalize">{incident.severity}</span>
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="capitalize">{incident.status}</TableCell>
+          {risks.length > 0 ? (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Risk</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Severity</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Date</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {risks.map((risk) => (
+                  <TableRow key={risk.id}>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        {getCategoryIcon(risk.category)}
+                        <span className="text-sm">{risk.category}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="font-medium">{risk.title}</TableCell>
+                    <TableCell>{risk.type}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <span className={`px-2 py-1 rounded-full text-xs ${getColorForSeverity(risk.severity)}`}>
+                          <span className="capitalize">{risk.severity}</span>
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="capitalize">{risk.status}</TableCell>
+                    <TableCell>
+                      {new Date(risk.date).toLocaleDateString()}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          ) : (
+            <div className="text-center py-8 text-green-600">
+              <ClipboardCheck size={48} className="mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">No Active Safety Risks!</h3>
+              <p className="text-gray-500">Your farm operations are currently meeting all safety standards.</p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

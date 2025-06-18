@@ -96,7 +96,66 @@ export type Database = {
           role?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [        ]
+      }
+      maintenance_tasks: {
+        Row: {
+          id: string
+          user_id: string
+          title: string
+          equipment: string
+          equipment_id: string
+          type: "scheduled" | "unscheduled" | "inspection" | "repair"
+          status: "upcoming" | "overdue" | "completed" | "in-progress"
+          due_date: string
+          completed_date: string | null
+          assigned_to: string
+          description: string | null
+          priority: "low" | "medium" | "high"
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          title: string
+          equipment: string
+          equipment_id: string
+          type: "scheduled" | "unscheduled" | "inspection" | "repair"
+          status?: "upcoming" | "overdue" | "completed" | "in-progress"
+          due_date: string
+          completed_date?: string | null
+          assigned_to: string
+          description?: string | null
+          priority?: "low" | "medium" | "high"
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          title?: string
+          equipment?: string
+          equipment_id?: string
+          type?: "scheduled" | "unscheduled" | "inspection" | "repair"
+          status?: "upcoming" | "overdue" | "completed" | "in-progress"
+          due_date?: string
+          completed_date?: string | null
+          assigned_to?: string
+          description?: string | null
+          priority?: "low" | "medium" | "high"
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_tasks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

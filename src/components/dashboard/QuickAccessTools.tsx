@@ -73,26 +73,20 @@ export const QuickAccessTools = () => {
           
           <Button 
             variant="outline" 
-            className="flex flex-col h-24 items-center justify-center gap-2 hover:bg-primary hover:text-white transition-colors"
-            onClick={() => handleToolClick("Resource Hub")}
-            asChild
+            className="flex flex-col h-24 items-center justify-center gap-2 opacity-50 cursor-not-allowed"
+            disabled
           >
-            <Link to="/dashboard/resources">
-              <FileText size={24} />
-              <span>Resource Hub</span>
-            </Link>
+            <FileText size={24} />
+            <span>Resource Hub</span>
           </Button>
           
           <Button 
-            variant="outline" 
-            className="flex flex-col h-24 items-center justify-center gap-2 hover:bg-primary hover:text-white transition-colors"
-            onClick={() => handleToolClick("Worker Health")}
-            asChild
+            variant="outline"
+            className="flex flex-col h-24 items-center justify-center gap-2 opacity-50 cursor-not-allowed"
+            disabled
           >
-            <Link to="/dashboard/health">
-              <Heart size={24} />
-              <span>Worker Health</span>
-            </Link>
+            <Heart size={24} />
+            <span>Worker Health</span>
           </Button>
         </div>
       </CardContent>

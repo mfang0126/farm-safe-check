@@ -2,7 +2,8 @@
 import { Button } from '@/components/ui/button';
 import { format, parseISO, isSameDay } from 'date-fns';
 import { AlertTriangle, CheckCircle, Clock, CalendarClock } from 'lucide-react';
-import { MaintenanceStatus, MaintenanceTask } from '@/types/maintenance';
+import { MaintenanceStatus } from '@/types/maintenance';
+import type { MaintenanceTask } from '@/lib/database/types';
 
 interface MaintenanceTaskProps {
   task: MaintenanceTask;
@@ -58,7 +59,7 @@ export const MaintenanceTaskItem: React.FC<MaintenanceTaskProps> = ({
                 </div>
               </span>
             </div>
-            <div className="text-sm text-gray-500 mt-1">{task.equipment} ({task.equipmentId})</div>
+            <div className="text-sm text-gray-500 mt-1">{task.equipment} ({task.equipment_id})</div>
           </div>
           <span className={`px-2 py-1 rounded-full text-xs ${getPriorityClass(task.priority)}`}>
             {task.priority} Priority
@@ -70,14 +71,14 @@ export const MaintenanceTaskItem: React.FC<MaintenanceTaskProps> = ({
           <div className="mt-3 text-xs text-gray-500">
             <div className="flex flex-col gap-1">
               <div className="flex gap-2">
-                <span className="font-medium">Due:</span> {format(parseISO(task.dueDate), 'PPP')}
+                <span className="font-medium">Due:</span> {format(parseISO(task.due_date), 'PPP')}
               </div>
               <div className="flex gap-2">
-                <span className="font-medium">Assigned to:</span> {task.assignedTo}
+                <span className="font-medium">Assigned to:</span> {task.assigned_to}
               </div>
-              {task.completedDate && (
+              {task.completed_date && (
                 <div className="flex gap-2">
-                  <span className="font-medium">Completed:</span> {format(parseISO(task.completedDate), 'PPP')}
+                  <span className="font-medium">Completed:</span> {format(parseISO(task.completed_date), 'PPP')}
                 </div>
               )}
             </div>

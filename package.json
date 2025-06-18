@@ -9,7 +9,9 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "seed:checklists": "node supabase/seed-checklist-templates.js",
+    "seed:checklists:force": "node supabase/seed-checklist-templates.js --force"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",

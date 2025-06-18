@@ -371,8 +371,7 @@ const CreateTemplateModal: React.FC<CreateTemplateModalProps> = ({
         description: formData.description,
         category: formData.category,
         item_count: getTotalItemCount(),
-        sections: formData.sections,
-        is_default: false
+        sections: formData.sections
       };
 
       const result = await checklistService.createTemplate(user.id, templateData);

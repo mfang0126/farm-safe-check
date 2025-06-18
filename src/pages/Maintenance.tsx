@@ -1,148 +1,140 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { addDays } from 'date-fns';
 
 // Types
-import { MaintenanceStatus, MaintenanceTask } from '@/types/maintenance';
+import { MaintenanceStatus, MaintenanceType } from '@/types/maintenance';
+import type { MaintenanceTask, MaintenanceTaskFilter } from '@/lib/database/types';
+
+// Services
+import { MaintenanceService } from '@/lib/database/services/maintenance';
+
+// Auth
+import { useAuth } from '@/contexts/AuthContext';
 
 // Components
 import { MaintenanceListView } from '@/components/maintenance/MaintenanceListView';
 import { MaintenanceCalendarView } from '@/components/maintenance/MaintenanceCalendarView';
 import { MaintenanceForm } from '@/components/maintenance/MaintenanceForm';
 
+// Create service instance
+const maintenanceService = new MaintenanceService();
+
+// Form data interface
+interface MaintenanceFormData {
+  title: string;
+  equipment: string;
+  type: MaintenanceType;
+  dueDate: string;
+  assignedTo: string;
+  description: string;
+  priority: 'low' | 'medium' | 'high';
+}
+
 const Maintenance = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
   const [viewType, setViewType] = useState<'calendar' | 'list'>('list');
   const [filter, setFilter] = useState<MaintenanceStatus | 'all'>('all');
-  
-  // Mock data for maintenance tasks
-  const [tasks, setTasks] = useState<MaintenanceTask[]>([
-    {
-      id: '1',
-      title: 'Annual Inspection',
-      equipment: 'John Deere Tractor',
-      equipmentId: 'JDTR-001',
-      type: 'inspection',
-      status: 'upcoming',
-      dueDate: addDays(new Date(), 5).toISOString(),
-      assignedTo: 'John Farmer',
-      description: 'Complete annual safety and operational inspection as required by manufacturer.',
-      priority: 'high'
-    },
-    {
-      id: '2',
-      title: 'Oil Change',
-      equipment: 'Case IH Harvester',
-      equipmentId: 'CIHV-002',
-      type: 'scheduled',
-      status: 'overdue',
-      dueDate: addDays(new Date(), -2).toISOString(),
-      assignedTo: 'Mark Smith',
-      description: 'Change oil and replace oil filter.',
-      priority: 'medium'
-    },
-    {
-      id: '3',
-      title: 'Replace Brake Pads',
-      equipment: 'Kubota Tractor',
-      equipmentId: 'KUBT-003',
-      type: 'repair',
-      status: 'in-progress',
-      dueDate: addDays(new Date(), 1).toISOString(),
-      assignedTo: 'Sarah Jones',
-      description: 'Replace worn brake pads on front and rear wheels.',
-      priority: 'high'
-    },
-    {
-      id: '4',
-      title: 'Lubricate Bearings',
-      equipment: 'New Holland Baler',
-      equipmentId: 'NHBL-004',
-      type: 'scheduled',
-      status: 'completed',
-      dueDate: addDays(new Date(), -7).toISOString(),
-      completedDate: addDays(new Date(), -6).toISOString(),
-      assignedTo: 'John Farmer',
-      description: 'Apply grease to all bearings according to maintenance manual.',
-      priority: 'low'
-    },
-    {
-      id: '5',
-      title: 'Hydraulic Fluid Check',
-      equipment: 'John Deere Tractor',
-      equipmentId: 'JDTR-001',
-      type: 'scheduled',
-      status: 'upcoming',
-      dueDate: addDays(new Date(), 3).toISOString(),
-      assignedTo: 'Mark Smith',
-      description: 'Check hydraulic fluid levels and top up if necessary.',
-      priority: 'medium'
-    },
-    {
-      id: '6',
-      title: 'Battery Replacement',
-      equipment: 'Sprayer',
-      equipmentId: 'SPRY-005',
-      type: 'unscheduled',
-      status: 'completed',
-      dueDate: addDays(new Date(), -10).toISOString(),
-      completedDate: addDays(new Date(), -9).toISOString(),
-      assignedTo: 'John Farmer',
-      description: 'Replace battery that is no longer holding charge.',
-      priority: 'high'
-    }
-  ]);
+  const [tasks, setTasks] = useState<MaintenanceTask[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleAddTask = (data: MaintenanceTask) => {
-    const newTask: MaintenanceTask = {
-      id: `${tasks.length + 1}`,
-      title: data.title,
-      equipment: data.equipment,
-      equipmentId: `EQ-${Math.floor(Math.random() * 1000)}`,
-      type: data.type,
-      status: 'upcoming',
-      dueDate: new Date(data.dueDate).toISOString(),
-      assignedTo: data.assignedTo,
-      description: data.description,
-      priority: data.priority as 'low' | 'medium' | 'high'
+  // Load maintenance tasks from database
+  useEffect(() => {
+    const loadTasks = async () => {
+      if (!user?.id) return;
+      
+      try {
+        setLoading(true);
+        const result = await maintenanceService.getUserMaintenanceTasks(user.id);
+        if (result.data) {
+          setTasks(result.data);
+        }
+      } catch (error) {
+        console.error('Error loading maintenance tasks:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load maintenance tasks",
+          variant: "destructive"
+        });
+      } finally {
+        setLoading(false);
+      }
     };
+
+    loadTasks();
+  }, [user?.id, toast]);
+
+  const handleAddTask = async (data: MaintenanceFormData) => {
+    if (!user?.id) return;
     
-    setTasks([...tasks, newTask]);
-    setIsAddTaskOpen(false);
-    
-    toast({
-      title: "Task added",
-      description: `${data.title} has been added to the maintenance schedule.`
-    });
+    try {
+      const taskData = {
+        title: data.title,
+        equipment: data.equipment,
+        equipment_id: `EQ-${Math.floor(Math.random() * 1000)}`,
+        type: data.type,
+        due_date: data.dueDate,
+        assigned_to: data.assignedTo,
+        description: data.description,
+        priority: data.priority as 'low' | 'medium' | 'high'
+      };
+
+      const result = await maintenanceService.createMaintenanceTask(user.id, taskData);
+      
+      if (result.data) {
+        // Refresh the tasks list
+        const tasksResult = await maintenanceService.getUserMaintenanceTasks(user.id);
+        if (tasksResult.data) {
+          setTasks(tasksResult.data);
+        }
+        setIsAddTaskOpen(false);
+      }
+    } catch (error) {
+      console.error('Error adding task:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add maintenance task",
+        variant: "destructive"
+      });
+    }
   };
 
-  const handleCompleteTask = (taskId: string) => {
-    setTasks(tasks.map(task => 
-      task.id === taskId 
-        ? { ...task, status: 'completed', completedDate: new Date().toISOString() } 
-        : task
-    ));
+  const handleCompleteTask = async (taskId: string) => {
+    if (!user?.id) return;
     
-    toast({
-      title: "Task completed",
-      description: "The maintenance task has been marked as completed."
-    });
+    try {
+      const result = await maintenanceService.completeMaintenanceTask(taskId, user.id);
+      if (result.data) {
+        // Refresh the tasks list
+        const tasksResult = await maintenanceService.getUserMaintenanceTasks(user.id);
+        if (tasksResult.data) {
+          setTasks(tasksResult.data);
+        }
+      }
+    } catch (error) {
+      console.error('Error completing task:', error);
+    }
   };
 
-  const handleStartTask = (taskId: string) => {
-    setTasks(tasks.map(task => 
-      task.id === taskId 
-        ? { ...task, status: 'in-progress' } 
-        : task
-    ));
+  const handleStartTask = async (taskId: string) => {
+    if (!user?.id) return;
     
-    toast({
-      title: "Task started",
-      description: "The maintenance task has been marked as in progress."
-    });
+    try {
+      const result = await maintenanceService.startMaintenanceTask(taskId, user.id);
+      if (result.data) {
+        // Refresh the tasks list
+        const tasksResult = await maintenanceService.getUserMaintenanceTasks(user.id);
+        if (tasksResult.data) {
+          setTasks(tasksResult.data);
+        }
+      }
+    } catch (error) {
+      console.error('Error starting task:', error);
+    }
   };
 
   const filteredTasks = tasks.filter(task => {
