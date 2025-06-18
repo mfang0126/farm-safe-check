@@ -1,78 +1,22 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileCheck, Plus, Search, Filter, CheckCircle } from 'lucide-react';
+import { FileCheck, Plus, Search, Filter, CheckCircle, Edit, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
+import { checklistService } from '@/lib/database/services/checklist';
+import CreateTemplateModal from '@/components/checklists/CreateTemplateModal';
+import EditTemplateModal from '@/components/checklists/EditTemplateModal';
+import type { ChecklistTemplate, CompletedChecklist } from '@/lib/database/types';
 
-const checklistTemplates = [
-  {
-    id: 1,
-    title: "Tractor Pre-Operation Safety Checklist",
-    description: "Standard safety check for all tractors before operation",
-    category: "Tractors",
-    items: 15,
-    lastUsed: "2025-04-25"
-  },
-  {
-    id: 2,
-    title: "Harvester Safety Inspection",
-    description: "Comprehensive harvester safety and maintenance check",
-    category: "Harvesters",
-    items: 20,
-    lastUsed: "2025-04-20"
-  },
-  {
-    id: 3,
-    title: "Sprayer Equipment Safety Verification",
-    description: "Safety check for chemical spraying equipment",
-    category: "Sprayers",
-    items: 18,
-    lastUsed: "2025-04-15"
-  },
-  {
-    id: 4,
-    title: "Farm Vehicle Safety Inspection",
-    description: "For ATVs, UTVs, and farm utility vehicles",
-    category: "Vehicles",
-    items: 12,
-    lastUsed: "2025-04-10"
-  }
-];
 
-const checklistHistory = [
-  {
-    id: 101,
-    equipmentName: "John Deere 6M Tractor",
-    templateName: "Tractor Pre-Operation Safety Checklist",
-    completedBy: "John Farmer",
-    completedOn: "2025-04-25",
-    status: "Passed",
-    issues: 0
-  },
-  {
-    id: 102,
-    equipmentName: "Case IH Harvester",
-    templateName: "Harvester Safety Inspection",
-    completedBy: "Mark Smith",
-    completedOn: "2025-04-20",
-    status: "Needs Maintenance",
-    issues: 3
-  },
-  {
-    id: 103,
-    equipmentName: "Kubota Sprayer",
-    templateName: "Sprayer Equipment Safety Verification",
-    completedBy: "Sarah Jones",
-    completedOn: "2025-04-15",
-    status: "Passed",
-    issues: 1
-  }
-];
 
 const demoChecklist = {
   title: "Tractor Pre-Operation Safety Checklist",
@@ -120,11 +64,126 @@ const demoChecklist = {
 };
 
 const Checklists = () => {
-  const [activeTab, setActiveTab] = React.useState("templates");
-  const [runningCheck, setRunningCheck] = React.useState(false);
-  const [checklist, setChecklist] = React.useState(demoChecklist);
-  const [notes, setNotes] = React.useState("");
+  const [activeTab, setActiveTab] = useState("templates");
+  const [runningCheck, setRunningCheck] = useState(false);
+  const [checklist, setChecklist] = useState(demoChecklist);
+  const [notes, setNotes] = useState("");
+  
+  // Template management state
+  const [templates, setTemplates] = useState<ChecklistTemplate[]>([]);
+  const [completedChecklists, setCompletedChecklists] = useState<CompletedChecklist[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  
+  // Modal state
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState<ChecklistTemplate | null>(null);
+  
+  const { user } = useAuth();
   const { toast } = useToast();
+
+  // Load data on component mount
+  useEffect(() => {
+    if (user) {
+      loadTemplates();
+      loadCompletedChecklists();
+    }
+  }, [user]);
+
+  const loadTemplates = async () => {
+    if (!user) return;
+    
+    try {
+      setLoading(true);
+      const result = await checklistService.getTemplates(user.id);
+      if (result.error) {
+        toast({
+          title: "Error Loading Templates",
+          description: result.error.message,
+          variant: "destructive"
+        });
+      } else {
+        setTemplates(result.data || []);
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to load templates",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadCompletedChecklists = async () => {
+    if (!user) return;
+    
+    try {
+      const result = await checklistService.getCompletedChecklists(user.id);
+      if (result.error) {
+        console.error("Error loading completed checklists:", result.error);
+      } else {
+        setCompletedChecklists(result.data || []);
+      }
+    } catch (error) {
+      console.error("Failed to load completed checklists:", error);
+    }
+  };
+
+  const handleDeleteTemplate = async (templateId: string) => {
+    if (!user) return;
+    
+    try {
+      const result = await checklistService.deleteTemplate(templateId, user.id);
+      if (result.error) {
+        toast({
+          title: "Error",
+          description: result.error.message,
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Template Deleted",
+          description: "Template has been deleted successfully.",
+        });
+        loadTemplates();
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete template",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleEditTemplate = (template: ChecklistTemplate) => {
+    setEditingTemplate(template);
+    setShowEditModal(true);
+  };
+
+  const handleTemplateCreated = () => {
+    loadTemplates();
+  };
+
+  const handleTemplateUpdated = () => {
+    loadTemplates();
+    setEditingTemplate(null);
+  };
+
+  // Filter templates based on search and category
+  const filteredTemplates = templates.filter(template => {
+    const matchesSearch = template.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          template.description?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = categoryFilter === "all" || template.category === categoryFilter;
+    return matchesSearch && matchesCategory;
+  });
+
+  // Get unique categories from templates
+  const categories = Array.from(new Set(templates.map(t => t.category)));
   
   const getStatusClass = (status: string) => {
     switch (status) {
@@ -199,16 +258,17 @@ const Checklists = () => {
           
           <div className="flex flex-col sm:flex-row gap-3">
             <Button 
-              onClick={() => setRunningCheck(true)}
+              onClick={() => setShowCreateModal(true)}
               className="flex items-center gap-2"
             >
-              <FileCheck size={16} />
+              <Plus size={16} />
               Create Template
             </Button>
             <Button 
               onClick={() => setRunningCheck(true)}
               variant="outline"
               className="flex items-center gap-2"
+              disabled={filteredTemplates.length === 0}
             >
               <CheckCircle size={16} />
               Run Check
@@ -229,9 +289,11 @@ const Checklists = () => {
                 <Input 
                   placeholder="Search templates..." 
                   className="pl-10"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-              <Select>
+              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
                 <SelectTrigger className="w-full lg:w-48">
                   <div className="flex items-center gap-2">
                     <Filter size={16} />
@@ -240,42 +302,112 @@ const Checklists = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Categories</SelectItem>
-                  <SelectItem value="tractors">Tractors</SelectItem>
-                  <SelectItem value="harvesters">Harvesters</SelectItem>
-                  <SelectItem value="sprayers">Sprayers</SelectItem>
-                  <SelectItem value="vehicles">Vehicles</SelectItem>
+                  {categories.map(category => (
+                    <SelectItem key={category} value={category}>{category}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-6">
-              {checklistTemplates.map((template) => (
-                <Card key={template.id} className="h-full">
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <div className="text-sm text-primary bg-primary/10 px-2 py-1 rounded mb-2 w-fit">
-                          {template.category}
+            {loading ? (
+              <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-6">
+                {[1, 2, 3, 4].map((i) => (
+                  <Card key={i} className="h-full">
+                    <CardHeader>
+                      <Skeleton className="h-6 w-20 mb-2" />
+                      <Skeleton className="h-6 w-full" />
+                      <Skeleton className="h-4 w-3/4" />
+                    </CardHeader>
+                    <CardFooter className="pt-0">
+                      <Skeleton className="h-8 w-16 mr-2" />
+                      <Skeleton className="h-8 w-20" />
+                    </CardFooter>
+                  </Card>
+                ))}
+              </div>
+            ) : filteredTemplates.length === 0 ? (
+              <div className="text-center py-12">
+                <FileCheck size={48} className="mx-auto text-gray-400 mb-4" />
+                <h3 className="text-lg font-semibold text-gray-600 mb-2">
+                  {searchTerm || categoryFilter !== "all" ? "No templates found" : "No templates yet"}
+                </h3>
+                <p className="text-gray-500 mb-4">
+                  {searchTerm || categoryFilter !== "all" 
+                    ? "Try adjusting your search or filter criteria"
+                    : "Create your first checklist template to get started"
+                  }
+                </p>
+                {(!searchTerm && categoryFilter === "all") && (
+                  <Button onClick={() => setShowCreateModal(true)}>
+                    <Plus size={16} className="mr-2" />
+                    Create Template
+                  </Button>
+                )}
+              </div>
+            ) : (
+              <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-6">
+                {filteredTemplates.map((template) => (
+                  <Card key={template.id} className="h-full">
+                    <CardHeader>
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <div className="text-sm text-primary bg-primary/10 px-2 py-1 rounded mb-2 w-fit">
+                            {template.category}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {template.item_count} items
+                          </div>
                         </div>
-                        <div className="text-xs text-gray-500">
-                          {template.items} items
-                        </div>
+                        {!template.is_default && (
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-700">
+                                <Trash2 size={14} />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete Template</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to delete "{template.title}"? This action cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction 
+                                  onClick={() => handleDeleteTemplate(template.id)}
+                                  className="bg-red-600 hover:bg-red-700"
+                                >
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        )}
                       </div>
-                    </div>
-                    <CardTitle className="text-lg">{template.title}</CardTitle>
-                    <CardDescription>{template.description}</CardDescription>
-                  </CardHeader>
-                  <CardFooter className="flex gap-2 pt-0">
-                    <Button variant="outline" size="sm">
-                      Edit
-                    </Button>
-                    <Button size="sm" onClick={() => setRunningCheck(true)}>
-                      Run Check
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
+                      <CardTitle className="text-lg">{template.title}</CardTitle>
+                      <CardDescription>{template.description}</CardDescription>
+                    </CardHeader>
+                    <CardFooter className="flex gap-2 pt-0">
+                      {!template.is_default && (
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleEditTemplate(template)}
+                        >
+                          <Edit size={14} className="mr-1" />
+                          Edit
+                        </Button>
+                      )}
+                      <Button size="sm" onClick={() => setRunningCheck(true)}>
+                        <CheckCircle size={14} className="mr-1" />
+                        Run Check
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                ))}
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="history" className="space-y-6">
@@ -287,30 +419,38 @@ const Checklists = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {checklistHistory.map((record) => (
-                    <div key={record.id} className="flex justify-between items-center p-4 border rounded-lg">
-                      <div className="flex-1">
-                        <h4 className="font-medium">{record.equipmentName}</h4>
-                        <p className="text-sm text-gray-600">{record.templateName}</p>
-                        <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
-                          <span>Completed by: {record.completedBy}</span>
-                          <span>Date: {record.completedOn}</span>
+                {completedChecklists.length === 0 ? (
+                  <div className="text-center py-8">
+                    <CheckCircle size={48} className="mx-auto text-gray-400 mb-4" />
+                    <h3 className="text-lg font-semibold text-gray-600 mb-2">No completed checklists</h3>
+                    <p className="text-gray-500">Your completed safety checks will appear here</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {completedChecklists.map((record) => (
+                      <div key={record.id} className="flex justify-between items-center p-4 border rounded-lg">
+                        <div className="flex-1">
+                          <h4 className="font-medium">{record.equipment_name}</h4>
+                          <p className="text-sm text-gray-600">{record.template_name}</p>
+                          <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                            <span>Completed by: {record.completed_by}</span>
+                            <span>Date: {new Date(record.completed_at).toLocaleDateString()}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className={`px-2 py-1 rounded text-xs ${getStatusClass(record.status)}`}>
+                            {record.status}
+                          </span>
+                          {record.issues_count > 0 && (
+                            <span className="text-xs text-amber-600">
+                              {record.issues_count} issue{record.issues_count !== 1 ? 's' : ''}
+                            </span>
+                          )}
                         </div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <span className={`px-2 py-1 rounded text-xs ${getStatusClass(record.status)}`}>
-                          {record.status}
-                        </span>
-                        {record.issues > 0 && (
-                          <span className="text-xs text-amber-600">
-                            {record.issues} issue{record.issues !== 1 ? 's' : ''}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -388,6 +528,20 @@ const Checklists = () => {
             </Button>
           </div>
         </div>
+
+        {/* Modals */}
+        <CreateTemplateModal
+          open={showCreateModal}
+          onOpenChange={setShowCreateModal}
+          onTemplateCreated={handleTemplateCreated}
+        />
+
+        <EditTemplateModal
+          open={showEditModal}
+          onOpenChange={setShowEditModal}
+          template={editingTemplate}
+          onTemplateUpdated={handleTemplateUpdated}
+        />
       </div>
     )
   );

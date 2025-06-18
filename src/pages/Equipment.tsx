@@ -9,7 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CalendarIcon, CheckCircle, AlertCircle, XCircle, Plus, Search, FilterIcon, Truck, FileCheck, Archive, ClipboardCheck } from 'lucide-react';
+import { CalendarIcon, CheckCircle, AlertCircle, XCircle, Plus, Search, FilterIcon, Truck, FileCheck, Archive, ClipboardCheck, Trash2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { equipmentService } from '@/lib/database';
 import { Equipment as EquipmentType, EquipmentInsert } from '@/lib/database/types';
@@ -131,7 +131,9 @@ const Equipment = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [currentEquipment, setCurrentEquipment] = useState<UIEquipment | null>(null);
+  const [equipmentToDelete, setEquipmentToDelete] = useState<UIEquipment | null>(null);
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
   const [loading, setLoading] = useState(true);
   const [newEquipment, setNewEquipment] = useState<Omit<UIEquipment, 'id'>>({
@@ -260,9 +262,55 @@ const Equipment = () => {
     });
   };
   
-  const handleViewEquipment = (item: Equipment) => {
+  const handleViewEquipment = (item: UIEquipment) => {
     setCurrentEquipment(item);
     setIsViewDialogOpen(true);
+  };
+
+  const handleDeleteEquipment = (item: UIEquipment) => {
+    setEquipmentToDelete(item);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteEquipment = async () => {
+    if (!equipmentToDelete) return;
+
+    try {
+      if (user) {
+        // Delete from database
+        const result = await equipmentService.deleteEquipment(equipmentToDelete.id, user.id);
+        
+        if (!result.data && !result.error?.message.includes('not yet implemented')) {
+          // If there was an actual error (not just the table not existing yet)
+          throw new Error('Failed to delete equipment');
+        }
+      }
+      
+      // Remove from local state regardless of database result
+      const updatedEquipment = equipment.filter(equip => equip.id !== equipmentToDelete.id);
+      setEquipment(updatedEquipment);
+      
+      // Close any open dialogs for this equipment
+      if (currentEquipment && currentEquipment.id === equipmentToDelete.id) {
+        setCurrentEquipment(null);
+        setIsViewDialogOpen(false);
+      }
+      
+      setEquipmentToDelete(null);
+      setIsDeleteDialogOpen(false);
+      
+      toast({
+        title: 'Success',
+        description: 'Equipment deleted successfully.',
+      });
+    } catch (error) {
+      console.error('Error deleting equipment:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to delete equipment. Please try again.',
+        variant: 'destructive'
+      });
+    }
   };
 
   const handleStatusChange = async (item: UIEquipment, newStatus: 'Passed' | 'Needs Maintenance' | 'Failed') => {
@@ -644,6 +692,35 @@ const Equipment = () => {
           </DialogContent>
         )}
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete Equipment</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this equipment? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {equipmentToDelete && (
+            <div className="space-y-2 py-4">
+              <p className="font-medium">{equipmentToDelete.makeModel}</p>
+              <p className="text-sm text-gray-600">{equipmentToDelete.type} - {equipmentToDelete.operator}</p>
+            </div>
+          )}
+          
+          <DialogFooter className="flex justify-end space-x-2">
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={confirmDeleteEquipment}>
+              <Trash2 size={16} className="mr-2" />
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       
       <Tabs value={viewMode} className="w-full">
         <TabsContent value="cards" className="m-0">
@@ -722,6 +799,14 @@ const Equipment = () => {
                     <Button variant="ghost" size="icon">
                       <Archive size={16} />
                     </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      onClick={() => handleDeleteEquipment(item)}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 size={16} />
+                    </Button>
                   </div>
                 </CardFooter>
               </Card>
@@ -757,13 +842,23 @@ const Equipment = () => {
                         </span>
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => handleViewEquipment(item)}
-                        >
-                          Details
-                        </Button>
+                        <div className="flex items-center justify-end gap-2">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => handleViewEquipment(item)}
+                          >
+                            Details
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => handleDeleteEquipment(item)}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 size={16} />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}

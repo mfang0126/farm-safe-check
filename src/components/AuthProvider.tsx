@@ -18,11 +18,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setSession(session);
           setUser(session?.user ?? null);
           
-          // Notify user of sign-in/sign-out events
-          if (event === 'SIGNED_IN') {
-            toast.success('Signed in successfully');
-            navigate('/dashboard');
-          } else if (event === 'SIGNED_OUT') {
+          // Only show toast and navigate on SIGNED_OUT events
+          // Don't show toast or navigate on SIGNED_IN events since they can be triggered by session refresh
+          if (event === 'SIGNED_OUT') {
             toast.success('Signed out successfully');
           }
         }
@@ -67,17 +65,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     };
   
-    const signIn = async (email: string, password: string) => {
+        const signIn = async (email: string, password: string) => {
       try {
         setLoading(true);
         const { error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
-  
+
         if (error) throw error;
         
-        // Navigation will happen automatically via onAuthStateChange listener
+        // Show success message and navigate only for explicit sign-in actions
+        toast.success('Signed in successfully');
+        navigate('/dashboard');
       } catch (error) {
         toast.error((error as Error).message || 'An error occurred during sign in');
         throw error;
