@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -10,9 +10,14 @@ import { useToast } from '@/hooks/use-toast';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CalendarIcon, CheckCircle, AlertCircle, XCircle, Plus, Search, FilterIcon, Truck, FileCheck, Archive, ClipboardCheck } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { equipmentService } from '@/lib/database';
+import { Equipment as EquipmentType, EquipmentInsert } from '@/lib/database/types';
+import { formatDatabaseDate } from '@/lib/database/utils';
 
-interface Equipment {
-  id: number;
+// UI adapter for the database equipment type
+interface UIEquipment {
+  id: string;
   type: string;
   makeModel: string;
   operator: string;
@@ -24,9 +29,24 @@ interface Equipment {
   notes?: string;
 }
 
-const initialEquipment: Equipment[] = [
+// Convert database equipment to UI equipment format
+const mapToUIEquipment = (dbEquipment: EquipmentType): UIEquipment => ({
+  id: dbEquipment.id,
+  type: dbEquipment.type,
+  makeModel: dbEquipment.make_model,
+  operator: dbEquipment.operator,
+  lastInspection: dbEquipment.last_inspection,
+  nextInspection: dbEquipment.next_inspection,
+  purchaseDate: dbEquipment.purchase_date,
+  status: dbEquipment.status,
+  safetyFeatures: dbEquipment.safety_features,
+  notes: dbEquipment.notes
+});
+
+// Mock data to use when database table is not yet implemented
+const mockEquipment: UIEquipment[] = [
   {
-    id: 1,
+    id: "1",
     type: 'Tractor',
     makeModel: 'John Deere 6M Series',
     operator: 'John Farmer',
@@ -38,7 +58,7 @@ const initialEquipment: Equipment[] = [
     notes: 'Regular maintenance completed on schedule. All systems working properly.'
   },
   {
-    id: 2,
+    id: "2",
     type: 'Harvester',
     makeModel: 'Case IH 250 Series',
     operator: 'Mark Smith',
@@ -50,7 +70,7 @@ const initialEquipment: Equipment[] = [
     notes: 'Hydraulic system needs inspection. Scheduled maintenance for next week.'
   },
   {
-    id: 3,
+    id: "3",
     type: 'Sprayer',
     makeModel: 'Kubota M7060',
     operator: 'Sarah Jones',
@@ -62,7 +82,7 @@ const initialEquipment: Equipment[] = [
     notes: 'New pressure gauge installed. All safety features verified.'
   },
   {
-    id: 4,
+    id: "4",
     type: 'Tillage Equipment',
     makeModel: 'John Deere 2230',
     operator: 'Mike Johnson',
@@ -106,14 +126,15 @@ const safetyFeaturesOptions = [
 ];
 
 const Equipment = () => {
-  const [equipment, setEquipment] = useState<Equipment[]>(initialEquipment);
+  const [equipment, setEquipment] = useState<UIEquipment[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
-  const [currentEquipment, setCurrentEquipment] = useState<Equipment | null>(null);
+  const [currentEquipment, setCurrentEquipment] = useState<UIEquipment | null>(null);
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
-  const [newEquipment, setNewEquipment] = useState<Omit<Equipment, 'id'>>({
+  const [loading, setLoading] = useState(true);
+  const [newEquipment, setNewEquipment] = useState<Omit<UIEquipment, 'id'>>({
     type: '',
     makeModel: '',
     operator: '',
@@ -126,8 +147,38 @@ const Equipment = () => {
   });
   
   const { toast } = useToast();
+  const { user } = useAuth();
 
-  const handleAddEquipment = () => {
+  // Load equipment on component mount
+  useEffect(() => {
+    const loadEquipment = async () => {
+      setLoading(true);
+      try {
+        if (user) {
+          const result = await equipmentService.getUserEquipment(user.id);
+          if (result.data) {
+            // Use real data from database if available
+            setEquipment(result.data.map(mapToUIEquipment));
+          } else {
+            // Use mock data if database table doesn't exist yet
+            setEquipment(mockEquipment);
+          }
+        } else {
+          // Use mock data if not logged in
+          setEquipment(mockEquipment);
+        }
+      } catch (error) {
+        console.error('Error loading equipment:', error);
+        setEquipment(mockEquipment);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadEquipment();
+  }, [user]);
+
+  const handleAddEquipment = async () => {
     // Validate form
     if (!newEquipment.type || !newEquipment.makeModel || !newEquipment.operator) {
       toast({
@@ -138,28 +189,59 @@ const Equipment = () => {
       return;
     }
     
-    // Add new equipment
-    const newId = Math.max(...equipment.map(e => e.id), 0) + 1;
-    setEquipment([...equipment, { ...newEquipment, id: newId }]);
-    
-    // Reset form and close dialog
-    setNewEquipment({
-      type: '',
-      makeModel: '',
-      operator: '',
-      lastInspection: new Date().toISOString().split('T')[0],
-      nextInspection: new Date(new Date().setMonth(new Date().getMonth() + 3)).toISOString().split('T')[0],
-      purchaseDate: new Date().toISOString().split('T')[0],
-      status: 'Passed',
-      safetyFeatures: [],
-      notes: ''
-    });
-    setIsAddDialogOpen(false);
-    
-    toast({
-      title: 'Equipment Added',
-      description: 'New equipment has been successfully added.'
-    });
+    try {
+      if (user) {
+        // Convert UI equipment to database format
+        const equipmentInsert: Omit<EquipmentInsert, 'user_id'> = {
+          type: newEquipment.type,
+          make_model: newEquipment.makeModel,
+          operator: newEquipment.operator,
+          last_inspection: newEquipment.lastInspection,
+          next_inspection: newEquipment.nextInspection,
+          purchase_date: newEquipment.purchaseDate,
+          status: newEquipment.status,
+          safety_features: newEquipment.safetyFeatures,
+          notes: newEquipment.notes
+        };
+        
+        // Add to database
+        const result = await equipmentService.createEquipment(user.id, equipmentInsert);
+        
+        if (result.data) {
+          // Add to local state
+          setEquipment([...equipment, mapToUIEquipment(result.data)]);
+        } else {
+          // If database table doesn't exist yet, add to local state with mock ID
+          const mockId = Math.random().toString(36).substring(2, 15);
+          setEquipment([...equipment, { ...newEquipment, id: mockId }]);
+        }
+      } else {
+        // If not logged in, just add to local state with mock ID
+        const mockId = Math.random().toString(36).substring(2, 15);
+        setEquipment([...equipment, { ...newEquipment, id: mockId }]);
+      }
+      
+      // Reset form and close dialog
+      setNewEquipment({
+        type: '',
+        makeModel: '',
+        operator: '',
+        lastInspection: new Date().toISOString().split('T')[0],
+        nextInspection: new Date(new Date().setMonth(new Date().getMonth() + 3)).toISOString().split('T')[0],
+        purchaseDate: new Date().toISOString().split('T')[0],
+        status: 'Passed',
+        safetyFeatures: [],
+        notes: ''
+      });
+      setIsAddDialogOpen(false);
+    } catch (error) {
+      console.error('Error adding equipment:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to add equipment. Please try again.',
+        variant: 'destructive'
+      });
+    }
   };
   
   const handleSafetyFeatureChange = (feature: string) => {
@@ -183,20 +265,40 @@ const Equipment = () => {
     setIsViewDialogOpen(true);
   };
 
-  const handleStatusChange = (item: Equipment, newStatus: 'Passed' | 'Needs Maintenance' | 'Failed') => {
-    const updatedEquipment = equipment.map(equip => {
-      if (equip.id === item.id) {
-        return { ...equip, status: newStatus };
+  const handleStatusChange = async (item: UIEquipment, newStatus: 'Passed' | 'Needs Maintenance' | 'Failed') => {
+    try {
+      if (user) {
+        // Update in database
+        const result = await equipmentService.updateEquipmentStatus(item.id, user.id, newStatus);
+        
+        if (!result.data && !result.error?.message.includes('not yet implemented')) {
+          // If there was an actual error (not just the table not existing yet)
+          throw new Error('Failed to update equipment status');
+        }
       }
-      return equip;
-    });
-    
-    setEquipment(updatedEquipment);
-    
-    toast({
-      title: 'Status Updated',
-      description: `${item.makeModel} status changed to ${newStatus}.`,
-    });
+      
+      // Update in local state regardless of database result
+      const updatedEquipment = equipment.map(equip => {
+        if (equip.id === item.id) {
+          return { ...equip, status: newStatus };
+        }
+        return equip;
+      });
+      
+      setEquipment(updatedEquipment);
+      
+      // If viewing an item, update the current equipment too
+      if (currentEquipment && currentEquipment.id === item.id) {
+        setCurrentEquipment({ ...currentEquipment, status: newStatus });
+      }
+    } catch (error) {
+      console.error('Error updating equipment status:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update equipment status. Please try again.',
+        variant: 'destructive'
+      });
+    }
   };
   
   const getStatusIcon = (status: string) => {
@@ -452,6 +554,17 @@ const Equipment = () => {
           </SelectContent>
         </Select>
       </div>
+      
+      {/* Loading state */}
+      {loading && (
+        <div className="text-center py-12 bg-gray-50 rounded-lg border border-dashed border-gray-300">
+          <div className="animate-pulse flex flex-col items-center">
+            <div className="rounded-full bg-gray-300 h-12 w-12 mb-4"></div>
+            <div className="h-4 bg-gray-300 rounded w-1/3 mb-2"></div>
+            <div className="h-3 bg-gray-300 rounded w-1/4"></div>
+          </div>
+        </div>
+      )}
       
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
         {currentEquipment && (

@@ -9,6 +9,62 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      equipment: {
+        Row: {
+          id: string
+          user_id: string
+          type: string
+          make_model: string
+          operator: string
+          last_inspection: string
+          next_inspection: string
+          purchase_date: string
+          status: "Passed" | "Needs Maintenance" | "Failed"
+          safety_features: string[]
+          notes: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          type: string
+          make_model: string
+          operator: string
+          last_inspection: string
+          next_inspection: string
+          purchase_date: string
+          status: "Passed" | "Needs Maintenance" | "Failed"
+          safety_features?: string[]
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          type?: string
+          make_model?: string
+          operator?: string
+          last_inspection?: string
+          next_inspection?: string
+          purchase_date?: string
+          status?: "Passed" | "Needs Maintenance" | "Failed"
+          safety_features?: string[]
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipment_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null

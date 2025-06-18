@@ -8,6 +8,12 @@
           "--access-token",
           "sbp_ac9c2680a0084ae342cbfa649fa08c2377749bca"
         ]
+      },
+      "playwright": {
+        "command": "npx",
+        "args": [
+          "@playwright/mcp@latest"
+        ]
       }
     }
   }
