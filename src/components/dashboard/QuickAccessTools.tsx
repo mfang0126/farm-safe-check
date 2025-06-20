@@ -1,18 +1,22 @@
-
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import useErrorHandler from '@/hooks/use-error-handler';
 import { Tractor, CheckSquare, Clock, BarChart3, FileText, Heart } from 'lucide-react';
 
 export const QuickAccessTools = () => {
   const { toast } = useToast();
+  const { handleNavigation } = useErrorHandler();
   
-  const handleToolClick = (toolName: string) => {
+  const handleToolClick = (toolName: string, path: string) => {
     toast({
       title: `Navigating to ${toolName}`,
       description: `Opening the ${toolName} tool...`,
     });
+    
+    // Use error handler for safe navigation
+    handleNavigation(path);
   };
   
   return (
@@ -26,49 +30,37 @@ export const QuickAccessTools = () => {
           <Button 
             variant="outline" 
             className="flex flex-col h-24 items-center justify-center gap-2 hover:bg-primary hover:text-white transition-colors"
-            onClick={() => handleToolClick("Equipment Registry")}
-            asChild
+            onClick={() => handleToolClick("Equipment Registry", "/dashboard/equipment")}
           >
-            <Link to="/dashboard/equipment">
-              <Tractor size={24} />
-              <span>Equipment Registry</span>
-            </Link>
+            <Tractor size={24} />
+            <span>Equipment Registry</span>
           </Button>
           
           <Button 
             variant="outline" 
             className="flex flex-col h-24 items-center justify-center gap-2 hover:bg-primary hover:text-white transition-colors"
-            onClick={() => handleToolClick("Safety Checklists")}
-            asChild
+            onClick={() => handleToolClick("Safety Checklists", "/dashboard/checklists")}
           >
-            <Link to="/dashboard/checklists">
-              <CheckSquare size={24} />
-              <span>Safety Checklists</span>
-            </Link>
+            <CheckSquare size={24} />
+            <span>Safety Checklists</span>
           </Button>
           
           <Button 
             variant="outline" 
             className="flex flex-col h-24 items-center justify-center gap-2 hover:bg-primary hover:text-white transition-colors"
-            onClick={() => handleToolClick("Maintenance")}
-            asChild
+            onClick={() => handleToolClick("Maintenance", "/dashboard/maintenance")}
           >
-            <Link to="/dashboard/maintenance">
-              <Clock size={24} />
-              <span>Maintenance</span>
-            </Link>
+            <Clock size={24} />
+            <span>Maintenance</span>
           </Button>
           
           <Button 
             variant="outline" 
             className="flex flex-col h-24 items-center justify-center gap-2 hover:bg-primary hover:text-white transition-colors"
-            onClick={() => handleToolClick("Risk Dashboard")}
-            asChild
+            onClick={() => handleToolClick("Risk Dashboard", "/dashboard/risk")}
           >
-            <Link to="/dashboard/risk">
-              <BarChart3 size={24} />
-              <span>Risk Dashboard</span>
-            </Link>
+            <BarChart3 size={24} />
+            <span>Risk Dashboard</span>
           </Button>
           
           <Button 
