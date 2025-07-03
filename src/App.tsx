@@ -23,6 +23,7 @@ import Maintenance from "./pages/Maintenance";
 import NotFound from "./pages/NotFound";
 import ResourceHub from "./pages/ResourceHub";
 import RiskDashboard from "./pages/RiskDashboard";
+import RiskArea from "./pages/RiskArea";
 import SignUp from "./pages/Signup";
 import TaskDashboard from "./pages/TaskDashboard";
 import TrainingRegister from "./pages/TrainingRegister";
@@ -60,6 +61,7 @@ const App = () => (
                 <Route path="/dashboard/training" element={<TrainingRegister />} />
                 <Route path="/dashboard/resources" element={<ResourceHub />} />
                 <Route path="/dashboard/risk" element={<RiskDashboard />} />
+                <Route path="/dashboard/risk-area" element={<RiskArea />} />
                 <Route path="/dashboard/tasks" element={<TaskDashboard />} />
                 <Route path="/dashboard/health" element={<Health />} />
               </Route>

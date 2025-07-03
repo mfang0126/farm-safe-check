@@ -1,43 +1,36 @@
-import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { 
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useAuth } from '@/contexts/AuthContext';
+import { checklistService } from '@/lib/database/services/checklist';
+import { equipmentService } from '@/lib/database/services/equipment';
+import { maintenanceService } from '@/lib/database/services/maintenance';
+import {
   AlertTriangle,
-  ShieldAlert,
-  TrendingDown,
-  BarChart3,
-  CircleAlert,
-  ClipboardCheck,
   ArrowDownRight,
   ArrowUpRight,
-  Wrench,
-  FileX,
+  BarChart3,
   Calendar,
+  CircleAlert,
+  ClipboardCheck,
+  FileX,
+  ShieldAlert,
+  TrendingDown,
+  Wrench,
 } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
-import { equipmentService } from '@/lib/database/services/equipment';
-import { checklistService } from '@/lib/database/services/checklist';
-import { maintenanceService } from '@/lib/database/services/maintenance';
-import { 
-  ChartContainer, 
-  ChartTooltip, 
-  ChartTooltipContent 
-} from '@/components/ui/chart';
+import { useEffect, useState } from 'react';
 import {
-  BarChart,
   Bar,
-  PieChart,
-  Pie,
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
+  BarChart,
   CartesianGrid,
-  Tooltip,
+  Cell,
   Legend,
+  Pie,
+  PieChart,
   ResponsiveContainer,
-  Cell
+  Tooltip,
+  XAxis,
+  YAxis
 } from 'recharts';
 
 interface SafetyRisk {

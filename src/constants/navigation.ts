@@ -1,4 +1,4 @@
-import { Calendar, FileCheck, LayoutDashboard, PieChart, Tractor } from "lucide-react";
+import { Calendar, FileCheck, LayoutDashboard, MapPin, PieChart, Tractor } from "lucide-react";
 
 export const NAV_ITEMS = [
     { icon: LayoutDashboard, name: 'Dashboard', path: '/dashboard' },
@@ -9,5 +9,6 @@ export const NAV_ITEMS = [
     // { icon: BookOpen, name: 'Training', path: '/dashboard/training' },
     // { icon: Heart, name: 'Worker Health', path: '/dashboard/health' },
     { icon: PieChart, name: 'Risk Dashboard', path: '/dashboard/risk' },
+    { icon: MapPin, name: 'Risk Area', path: '/dashboard/risk-area' },
     // { icon: FileText, name: 'Resources', path: '/dashboard/resources' },
   ];
