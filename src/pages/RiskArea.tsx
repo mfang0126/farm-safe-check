@@ -36,10 +36,23 @@ import {
 import { mockIncidents } from '@/components/risk/mock-incidents';
 import DetailedRiskAssessmentModal from '@/components/risk/DetailedRiskAssessmentModal';
 import { RiskService } from '@/lib/database/services/risk';
-import { Tables } from '@/integrations/supabase/types';
+import { Tables, Json } from '@/integrations/supabase/types';
 
 type RiskZoneData = Tables<'risk_zones'>;
 type FarmMapData = Tables<'farm_maps'> & { risk_zones: RiskZoneData[] };
+
+// Extended geometry interface to include action plan
+interface ExtendedGeometry {
+  id?: string;
+  name?: string;
+  type?: string;
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  rotation?: number;
+  actionPlan?: ActionPlan;
+}
 
 // Risk zone form data interface
 interface RiskZoneFormData {
@@ -200,16 +213,15 @@ const RiskArea = () => {
 
       toast({
         title: "Risk Zone Added",
-        description: `"${formData.name}" has been added successfully.`,
+        description: `"${formData.name}" has been added to the center of the map.`,
       });
 
-      resetForm();
       setShowAddModal(false);
+      resetForm();
     } catch (error) {
-      console.error('Error adding zone:', error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to add risk zone. Please try again.",
+        description: "Failed to add risk zone. Please try again.",
         variant: "destructive"
       });
     }
@@ -220,52 +232,49 @@ const RiskArea = () => {
 
     try {
       const updatedZoneData = {
-              name: formData.name,
-              category: formData.category,
+        name: formData.name,
+        category: formData.category,
         risk_level: formData.risk_level as 'Low' | 'Medium' | 'High' | 'Critical',
-              location: formData.location,
-              description: formData.description,
-              updated_at: new Date().toISOString(),
-              geometry: {
-          ...(editingZone.geometry as object),
-                name: formData.name
-              }
+        location: formData.location,
+        description: formData.description,
+        updated_at: new Date().toISOString(),
       };
 
-      const { data: updatedZone, error } = await riskService.updateRiskZone(editingZone.id, user.id, updatedZoneData);
+      const { data: updatedZone, error } = await riskService.updateRiskZone(
+        editingZone.id,
+        user.id,
+        updatedZoneData
+      );
 
       if (error || !updatedZone) {
         throw new Error(error?.message || "Failed to update risk zone.");
       }
 
-      const updatedZones = farmMapData.risk_zones.map(zone => 
-        zone.id === editingZone.id ? updatedZone : zone
-      );
-
-      setFarmMapData({
-        ...farmMapData,
-        risk_zones: updatedZones
-      });
+      setFarmMapData(prev => prev ? {
+        ...prev,
+        risk_zones: prev.risk_zones.map(zone =>
+          zone.id === editingZone.id ? updatedZone : zone
+        )
+      } : null);
 
       toast({
         title: "Risk Zone Updated",
         description: `"${formData.name}" has been updated successfully.`,
       });
 
-      resetForm();
       setShowAddModal(false);
+      resetForm();
     } catch (error) {
-      console.error('Error updating zone:', error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to update risk zone. Please try again.",
+        description: "Failed to update risk zone. Please try again.",
         variant: "destructive"
       });
     }
   };
 
   const handleDeleteZone = async (zoneId: string) => {
-    if (!farmMapData || !user) return;
+    if (!user) return;
 
     try {
       const { error } = await riskService.deleteRiskZone(zoneId, user.id);
@@ -274,21 +283,23 @@ const RiskArea = () => {
         throw new Error(error.message);
       }
 
-      const updatedZones = farmMapData.risk_zones.filter(zone => zone.id !== zoneId);
-      setFarmMapData({
-        ...farmMapData,
-        risk_zones: updatedZones
-      });
+      setFarmMapData(prev => prev ? {
+        ...prev,
+        risk_zones: prev.risk_zones.filter(zone => zone.id !== zoneId)
+      } : null);
 
       toast({
         title: "Risk Zone Deleted",
-        description: "The risk zone has been deleted successfully.",
+        description: "The risk zone has been removed successfully.",
       });
+
+      if (selectedZone?.id === zoneId) {
+        setSelectedZone(null);
+      }
     } catch (error) {
-      console.error('Error deleting zone:', error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to delete risk zone. Please try again.",
+        description: "Failed to delete risk zone. Please try again.",
         variant: "destructive"
       });
     }
@@ -298,10 +309,10 @@ const RiskArea = () => {
     setEditingZone(zone);
     setFormData({
       name: zone.name,
-      category: zone.category || '',
-      risk_level: zone.risk_level || '',
-      location: zone.location || '',
-      description: zone.description || ''
+      category: zone.category,
+      risk_level: zone.risk_level,
+      location: zone.location,
+      description: zone.description,
     });
     setShowAddModal(true);
   };
@@ -317,40 +328,46 @@ const RiskArea = () => {
   };
 
   const closePlanModal = () => {
-    setZoneForPlan(null);
     setIsPlanModalOpen(false);
+    setZoneForPlan(null);
   };
 
   const handleSavePlan = async (plan: ActionPlan) => {
-    if (!zoneForPlan || !farmMapData || !user) return;
+    if (!zoneForPlan || !farmMapData) return;
 
     try {
-      const updatedZoneData = {
-        action_plan: plan,
-        updated_at: new Date().toISOString()
+      // For now, we'll store action plans in the geometry metadata
+      // In a full implementation, you'd want a separate action_plans table
+      const currentGeometry = zoneForPlan.geometry as ExtendedGeometry;
+      const updatedGeometry: ExtendedGeometry = {
+        ...currentGeometry,
+        actionPlan: plan
       };
 
-      const { data: updatedZone, error } = await riskService.updateRiskZone(zoneForPlan.id, user.id, updatedZoneData);
+      const { data: updatedZone, error } = await riskService.updateRiskZone(
+        zoneForPlan.id,
+        user?.id || '',
+        { geometry: updatedGeometry as unknown as Json }
+      );
 
       if (error || !updatedZone) {
-        throw new Error(error?.message || "Failed to update action plan.");
+        throw new Error(error?.message || "Failed to save action plan.");
       }
 
-      const updatedZones = farmMapData.risk_zones.map(zone =>
-        zone.id === zoneForPlan.id ? updatedZone : zone
-    );
+      setFarmMapData(prev => prev ? {
+        ...prev,
+        risk_zones: prev.risk_zones.map(zone =>
+          zone.id === zoneForPlan.id ? updatedZone : zone
+        )
+      } : null);
 
-    setFarmMapData({
-      ...farmMapData,
-        risk_zones: updatedZones
-    });
+      toast({
+        title: "Action Plan Saved",
+        description: `Action plan for "${zoneForPlan.name}" has been updated.`,
+      });
 
-    toast({
-      title: "Action Plan Saved",
-      description: `The action plan for "${zoneForPlan.name}" has been updated.`,
-    });
+      closePlanModal();
     } catch (error) {
-      console.error('Error saving action plan:', error);
       toast({
         title: "Error",
         description: "Failed to save action plan. Please try again.",
@@ -360,9 +377,7 @@ const RiskArea = () => {
   };
 
   const handleZoneClick = (zone: RiskZoneData) => {
-    if (isEditMode) {
-      setSelectedZone(zone);
-    }
+    setSelectedZone(zone);
   };
 
   const handleZoneHover = (zone: RiskZoneData | null) => {
@@ -374,73 +389,68 @@ const RiskArea = () => {
   };
 
   const handleZonePositionChange = async (zoneId: string, newPosition: { x: number; y: number }) => {
-    if (!farmMapData) return;
-    
-    const updatedZones = farmMapData.risk_zones.map(zone => 
-      zone.id === zoneId 
-        ? {
-            ...zone,
-            geometry: {
-              ...(zone.geometry as object),
-              x: newPosition.x,
-              y: newPosition.y
-            }
-          }
-        : zone
-    );
+    if (!farmMapData || !user) return;
 
-    setFarmMapData({
-      ...farmMapData,
-      risk_zones: updatedZones
-    });
+    const zone = riskZones.find(z => z.id === zoneId);
+    if (!zone) return;
 
-    // Save to database in edit mode
-    if (isEditMode && user) {
-      try {
-        const zoneToUpdate = farmMapData.risk_zones.find(zone => zone.id === zoneId);
-        if (zoneToUpdate) {
-          const updatedZoneData = {
-            geometry: {
-              ...(zoneToUpdate.geometry as object),
-              x: newPosition.x,
-              y: newPosition.y
-            }
-          };
-          await riskService.updateRiskZone(zoneId, user.id, updatedZoneData);
-        }
-      } catch (error) {
-        console.error('Error updating zone position:', error);
+    try {
+      const currentGeometry = zone.geometry as ExtendedGeometry;
+      const updatedGeometry: ExtendedGeometry = {
+        ...currentGeometry,
+        x: newPosition.x,
+        y: newPosition.y
+      };
+
+      const { data: updatedZone, error } = await riskService.updateRiskZone(
+        zoneId,
+        user.id,
+        { geometry: updatedGeometry as unknown as Json }
+      );
+
+      if (error || !updatedZone) {
+        throw new Error(error?.message || "Failed to update zone position.");
       }
+
+      setFarmMapData(prev => prev ? {
+        ...prev,
+        risk_zones: prev.risk_zones.map(z =>
+          z.id === zoneId ? updatedZone : z
+        )
+      } : null);
+
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update zone position. Please try again.",
+        variant: "destructive"
+      });
     }
   };
 
   const handleAddZoneToMap = () => {
-    setActiveTab('zones');
     openAddModal();
   };
 
   const toggleEditMode = () => {
     setIsEditMode(!isEditMode);
-    setSelectedZone(null);
   };
 
   const saveMapChanges = () => {
-    if (farmMapData) {
-      toast({
-        title: "Map Saved",
-        description: "All position changes have been saved successfully.",
-      });
-    }
+    toast({
+      title: "Changes Saved",
+      description: "All zone position changes have been saved.",
+    });
     setIsEditMode(false);
-    setSelectedZone(null);
   };
 
   const discardMapChanges = async () => {
-    if (user && farmMapData) {
-      await fetchFarmMap(farmMapData.id);
-    }
+    if (!farmMapData) return;
+
+    // Reload the original data to discard changes
+    await fetchFarmMap(farmMapData.id);
     setIsEditMode(false);
-    setSelectedZone(null);
+    
     toast({
       title: "Changes Discarded",
       description: "All unsaved position changes have been discarded.",
@@ -453,119 +463,179 @@ const RiskArea = () => {
   };
 
   const closeAssessmentModal = () => {
-    setZoneForAssessment(null);
     setIsAssessmentModalOpen(false);
+    setZoneForAssessment(null);
+  };
+
+  const openPlanModal = (zone: RiskZoneData) => {
+    setZoneForPlan(zone);
+    setIsPlanModalOpen(true);
+  };
+
+  // Helper function to get geometry as ExtendedGeometry
+  const getExtendedGeometry = (zone: RiskZoneData): ExtendedGeometry => {
+    return zone.geometry as ExtendedGeometry;
   };
 
   return (
     <div className="space-y-6">
+      {/* Clean header design matching previous version */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold">Risk Area Management</h1>
+          <p className="text-muted-foreground">Define and monitor risk zones across your farm operations</p>
+        </div>
+      </div>
+
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        {/* Only 2 tabs: Manage Zones and View Map */}
         <TabsList className="grid grid-cols-2 w-full md:w-auto">
           <TabsTrigger value="zones">Manage Zones</TabsTrigger>
           <TabsTrigger value="map">View Map</TabsTrigger>
         </TabsList>
 
+        {/* Manage Zones Tab - Edit info/field values only */}
         <TabsContent value="zones" className="space-y-6">
-          <div className="flex justify-between items-center">
+          <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-bold">High-Risk Zones Management</h2>
-              <p className="text-gray-600">Manage and configure your farm's risk areas</p>
+              <h2 className="text-lg font-semibold">Zone Information Management</h2>
+              <p className="text-sm text-muted-foreground">Edit zone details and properties</p>
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm">
-                <Download className="mr-2" size={16} />
-                Export Report
-              </Button>
-              <Button size="sm" onClick={openAddModal}>
+            <Button onClick={openAddModal}>
               <Plus className="mr-2" size={16} />
-                Add New Risk Zone
+              Add New Zone
             </Button>
-            </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-6">
-            {/* Current Risk Zones */}
+          <div className="grid grid-cols-1 gap-4">
+            {riskZones.length === 0 ? (
               <Card>
-              <CardHeader>
-                <CardTitle>Current Risk Zones</CardTitle>
-                <CardDescription>Active risk areas requiring management attention</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {riskZones.map((zone) => (
-                    <div 
-                      key={zone.id} 
-                      className={`border rounded-lg p-4 space-y-3 transition-all cursor-pointer ${
-                        selectedZone?.id === zone.id ? 'ring-2 ring-blue-500 border-blue-500' : 
-                        hoveredZone?.id === zone.id ? 'border-gray-400 shadow-md' : ''
-                      }`}
-                      onClick={() => handleZoneSelect(zone)}
-                    >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <h3 className="font-semibold text-lg">{zone.name}</h3>
+                <CardContent className="flex flex-col items-center justify-center py-12">
+                  <MapPin className="h-12 w-12 text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">No Risk Zones Yet</h3>
+                  <p className="text-muted-foreground text-center mb-4">
+                    Start by adding your first risk zone to monitor safety areas across your farm.
+                  </p>
+                  <Button onClick={openAddModal}>
+                    <Plus className="mr-2" size={16} />
+                    Add First Zone
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              riskZones.map((zone) => {
+                const geometry = getExtendedGeometry(zone);
+                return (
+                  <Card key={zone.id} className="hover:shadow-md transition-shadow">
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <h3 className="font-semibold text-lg">{zone.name}</h3>
                             <Badge className={getRiskLevelBadgeColor(zone.risk_level)}>
                               {zone.risk_level}
-                          </Badge>
-                        </div>
-                          <p className="text-sm text-gray-600 mb-1">{zone.category}</p>
-                          <p className="text-sm text-gray-800 mb-2">{zone.description}</p>
-                          <div className="text-xs text-gray-500">
-                            <p>Last review: {zone.last_review ? new Date(zone.last_review).toLocaleDateString() : 'Never'} | {zone.incidents_this_year || 0} incidents this year</p>
-                            <p>Position: ({Math.round((zone.geometry as object & {x?: number, y?: number})?.x || 0)}, {Math.round((zone.geometry as object & {x?: number, y?: number})?.y || 0)})</p>
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground mb-1">{zone.category}</p>
+                          <p className="text-sm mb-2">{zone.description}</p>
+                          <p className="text-sm text-muted-foreground mb-2">
+                            <strong>Location:</strong> {zone.location}
+                          </p>
+                          {/* Action Plan Display - Enhanced for database zones */}
+                          {geometry.actionPlan && (
+                            <div className="text-xs mt-2 p-2 bg-gray-50 rounded-md border">
+                              <p className="font-semibold flex items-center gap-1.5">
+                                <ClipboardList size={14} />
+                                Action Plan: <span className={`font-bold ${
+                                  geometry.actionPlan.status === 'Completed' ? 'text-green-600' : 
+                                  geometry.actionPlan.status === 'In Progress' ? 'text-blue-600' : ''
+                                }`}>{geometry.actionPlan.status}</span>
+                              </p>
+                              <p className="text-muted-foreground mt-1 truncate">
+                                {geometry.actionPlan.details}
+                              </p>
+                            </div>
+                          )}
+                          <div className="text-xs text-muted-foreground mt-2 flex items-center justify-between">
+                            <span>Last review: {zone.last_review ? new Date(zone.last_review).toLocaleDateString() : 'Never'} | {zone.incidents_this_year || 0} incidents this year</span>
+                            {zone.incidents_this_year && zone.incidents_this_year > 0 && (
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <span className="flex items-center gap-1 font-semibold text-amber-600 cursor-pointer">
+                                      <AlertCircle size={14} />
+                                      {zone.incidents_this_year} Incident(s)
+                                    </span>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <div className="p-1">
+                                      <h4 className="font-bold mb-1">Recent Incidents</h4>
+                                      <p className="text-sm">View incident details in the Risk Dashboard</p>
+                                    </div>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            )}
                           </div>
                         </div>
-                        <div className="flex gap-1 ml-4">
-                        <Button size="sm" variant="outline" onClick={() => openAssessmentModal(zone)}>
-                            <Eye className="mr-1" size={14} />
-                            View
-                        </Button>
-                        <Button size="sm" variant="outline" onClick={() => openEditModal(zone)}>
-                          <Edit className="mr-1" size={14} />
-                            Edit
-                        </Button>
-                          <Button size="sm" className={getRiskLevelColor(zone.risk_level)} onClick={() => { setZoneForPlan(zone); setIsPlanModalOpen(true); }}>
+                        <div className="flex flex-col gap-2 ml-4">
+                          <Button size="sm" variant="outline" onClick={() => openAssessmentModal(zone)}>
                             <FileText className="mr-1" size={14} />
-                            Action Plan
-                        </Button>
+                            View Details
+                          </Button>
+                          <Button size="sm" variant="outline" onClick={() => openEditModal(zone)}>
+                            <Edit className="mr-1" size={14} />
+                            Edit Info
+                          </Button>
+                          <Button size="sm" variant="outline" onClick={() => {setActiveTab('map'); setSelectedZone(zone);}}>
+                            <Eye className="mr-1" size={14} />
+                            View on Map
+                          </Button>
+                          <Button size="sm" variant="outline" onClick={() => openPlanModal(zone)}>
+                            <ClipboardList className="mr-1" size={14} />
+                            Manage Plan
+                          </Button>
                         </div>
                       </div>
-                    </div>
-                  ))}
-                    </div>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                );
+              })
+            )}
           </div>
         </TabsContent>
 
+        {/* View Map Tab - Edit positions only */}
         <TabsContent value="map" className="space-y-6">
-          <div className="flex justify-between items-center">
+          <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-bold">Full-Screen Interactive Farm Map</h2>
-              <p className="text-gray-600">
-                Expanded view of your farm's risk zones with enhanced interaction
-                {selectedZone && (
-                  <span className="ml-2 text-blue-600 font-medium">
-                    • Selected: {selectedZone.name}
-                  </span>
-                )}
+              <h2 className="text-lg font-semibold">Zone Position Management</h2>
+              <p className="text-sm text-muted-foreground">
+                {isEditMode 
+                  ? "Click and drag zones to reposition them. Click save when finished." 
+                  : "View and manage zone positions on the farm map"}
               </p>
             </div>
             <div className="flex gap-2">
-              <Button variant={isEditMode ? "destructive" : "outline"} onClick={toggleEditMode}>
-                {isEditMode ? 'Cancel Edit' : 'Edit Map Layout'}
-                  </Button>
-              {isEditMode && (
+              {!isEditMode ? (
                 <>
-                  <Button onClick={saveMapChanges}>
-                    <Save className="mr-2 h-4 w-4" />
-                    Save Changes
+                  <Button variant="outline" onClick={handleAddZoneToMap}>
+                    <Plus className="mr-2" size={16} />
+                    Add Zone to Map
                   </Button>
+                  <Button onClick={toggleEditMode}>
+                    <Move className="mr-2" size={16} />
+                    Edit Positions
+                  </Button>
+                </>
+              ) : (
+                <>
                   <Button variant="outline" onClick={discardMapChanges}>
-                    <RotateCcw className="mr-2 h-4 w-4" />
-                    Discard
+                    <RotateCcw className="mr-2" size={16} />
+                    Discard Changes
+                  </Button>
+                  <Button onClick={saveMapChanges}>
+                    <Save className="mr-2" size={16} />
+                    Save Changes
                   </Button>
                 </>
               )}
@@ -573,20 +643,9 @@ const RiskArea = () => {
           </div>
 
           <Card>
-            <CardHeader>
-              <CardTitle>Interactive Farm Risk Map</CardTitle>
-              <CardDescription>
-                Click and drag to pan, scroll to zoom, click zones for details
-                {selectedZone && (
-                  <span className="ml-2 text-blue-600 font-medium">
-                    • Selected: {selectedZone.name}
-                  </span>
-                )}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="relative border rounded-lg overflow-hidden">
+            <CardContent className="p-0">
               {farmMapData ? (
+                <div className="relative border rounded-lg overflow-hidden">
                   <FarmMap
                     farmMapData={farmMapData}
                     selectedZoneId={selectedZone?.id || null}
@@ -600,20 +659,27 @@ const RiskArea = () => {
                     setDraggedZoneId={setDraggedZoneId}
                     className="relative"
                   />
+                  
+                  {/* Edit mode indicator */}
+                  {isEditMode && (
+                    <div className="absolute top-4 left-4 bg-blue-100 border border-blue-200 text-blue-800 px-3 py-1 rounded-md text-sm font-medium">
+                      Edit Mode: Click and drag zones to reposition
+                    </div>
+                  )}
+                </div>
               ) : (
                 <div className="h-96 bg-gray-100 rounded-lg flex items-center justify-center">
                   <div className="text-center text-gray-500">
                     <MapPin size={48} className="mx-auto mb-2" />
-                      <p className="font-medium">Loading Interactive Map...</p>
-                      <p className="text-sm">Initializing farm layout with risk zones</p>
-                    </div>
+                    <p className="font-medium">Loading Map...</p>
+                    <p className="text-sm">Initializing farm layout</p>
                   </div>
-                )}
                 </div>
+              )}
               
-              {/* Zone details panel */}
+              {/* Selected zone info panel */}
               {selectedZone && (
-                <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="p-4 bg-blue-50 border-t border-blue-200">
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="font-semibold text-lg flex items-center gap-2">
                       {selectedZone.name}
@@ -629,13 +695,39 @@ const RiskArea = () => {
                       ✕
                     </Button>
                   </div>
-                  <p className="text-sm text-gray-600 mb-1">{selectedZone.category}</p>
-                  <p className="text-sm mb-2">{selectedZone.description}</p>
-                  <div className="text-xs text-gray-500 flex gap-4">
-                    <span>Last review: {selectedZone.last_review ? new Date(selectedZone.last_review).toLocaleDateString() : 'Never'}</span>
-                    <span>{selectedZone.incidents_this_year || 0} incidents this year</span>
-                    <span>Location: {selectedZone.location}</span>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <p><strong>Category:</strong> {selectedZone.category}</p>
+                      <p><strong>Location:</strong> {selectedZone.location}</p>
+                    </div>
+                    <div>
+                      {(() => {
+                        const geometry = getExtendedGeometry(selectedZone);
+                        return (
+                          <>
+                            <p><strong>Position:</strong> ({Math.round(geometry.x || 0)}, {Math.round(geometry.y || 0)})</p>
+                            <p><strong>Size:</strong> {Math.round(geometry.width || 0)} × {Math.round(geometry.height || 0)}</p>
+                          </>
+                        );
+                      })()}
+                    </div>
                   </div>
+                  {!isEditMode && (
+                    <div className="mt-3 flex gap-2">
+                      <Button size="sm" variant="outline" onClick={() => {setActiveTab('zones'); openEditModal(selectedZone);}}>
+                        <Edit className="mr-1" size={14} />
+                        Edit Info
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => openPlanModal(selectedZone)}>
+                        <ClipboardList className="mr-1" size={14} />
+                        Manage Plan
+                      </Button>
+                      <Button size="sm" onClick={toggleEditMode}>
+                        <Move className="mr-1" size={14} />
+                        Edit Position
+                      </Button>
+                    </div>
+                  )}
                 </div>
               )}
             </CardContent>
@@ -644,77 +736,119 @@ const RiskArea = () => {
       </Tabs>
 
       {/* Add/Edit Zone Modal */}
-      <Dialog open={showAddModal} onOpenChange={setShowAddModal}>
-        <DialogContent>
+      <Dialog open={showAddModal} onOpenChange={handleCloseModal}>
+        <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>{editingZone ? 'Edit Risk Zone' : 'Add New Risk Zone'}</DialogTitle>
+            <DialogTitle>
+              {editingZone ? 'Edit Risk Zone' : 'Add New Risk Zone'}
+            </DialogTitle>
             <DialogDescription>
-              {editingZone ? 'Update the details of this risk zone.' : 'Define a new high-risk area on your farm.'}
+              {editingZone 
+                ? 'Update the zone information. Position changes must be made in the View Map tab.'
+                : 'Create a new risk zone. The zone will be added to the center of the map.'
+              }
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">Name</Label>
-              <Input id="name" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="col-span-3" />
+
+          <div className="space-y-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="zone-name">Zone Name *</Label>
+              <Input
+                id="zone-name"
+                placeholder="e.g., Chemical Storage Area A"
+                value={formData.name}
+                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+              />
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="category" className="text-right">Category</Label>
-              <Select value={formData.category} onValueChange={(value) => setFormData({...formData, category: value})}>
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Select a category" />
+
+            <div className="grid gap-2">
+              <Label htmlFor="risk-category">Risk Category *</Label>
+              <Select
+                value={formData.category}
+                onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select risk category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {RISK_CATEGORIES.map(cat => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}
+                  {RISK_CATEGORIES.map(category => (
+                    <SelectItem key={category} value={category}>{category}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="risk-level" className="text-right">Risk Level</Label>
-              <Select value={formData.risk_level} onValueChange={(value) => setFormData({...formData, risk_level: value})}>
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Select a risk level" />
+
+            <div className="grid gap-2">
+              <Label htmlFor="risk-level">Risk Level *</Label>
+              <Select
+                value={formData.risk_level}
+                onValueChange={(value) => setFormData(prev => ({ ...prev, risk_level: value }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select risk level" />
                 </SelectTrigger>
                 <SelectContent>
-                  {RISK_LEVELS.map(level => <SelectItem key={level} value={level}>{level}</SelectItem>)}
+                  {RISK_LEVELS.map(level => (
+                    <SelectItem key={level} value={level}>{level}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="location" className="text-right">Location</Label>
-              <Input id="location" value={formData.location} onChange={(e) => setFormData({...formData, location: e.target.value})} className="col-span-3" />
+
+            <div className="grid gap-2">
+              <Label htmlFor="zone-location">Physical Location *</Label>
+              <Input
+                id="zone-location"
+                placeholder="e.g., North paddock, near main gate"
+                value={formData.location}
+                onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
+              />
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="description" className="text-right">Description</Label>
-              <Textarea id="description" value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} className="col-span-3" />
+
+            <div className="grid gap-2">
+              <Label htmlFor="zone-description">Risk Description *</Label>
+              <Textarea
+                id="zone-description"
+                placeholder="Describe the specific risks and hazards in this area..."
+                value={formData.description}
+                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                rows={3}
+              />
             </div>
           </div>
-          <div className="flex justify-end space-x-2">
-            <Button variant="ghost" onClick={handleCloseModal}>Cancel</Button>
-            <Button onClick={editingZone ? handleEditZone : handleAddZone} disabled={!canSubmit()}>
-              {editingZone ? 'Save Changes' : 'Add Zone'}
+
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={handleCloseModal}>
+              Cancel
+            </Button>
+            <Button
+              onClick={editingZone ? handleEditZone : handleAddZone}
+              disabled={!canSubmit()}
+            >
+              {editingZone ? 'Update Zone' : 'Add Zone'}
             </Button>
           </div>
         </DialogContent>
       </Dialog>
 
       {/* Action Plan Modal */}
-      {zoneForPlan && (
-        <ActionPlanModal 
+      {isPlanModalOpen && zoneForPlan && (
+        <ActionPlanModal
           isOpen={isPlanModalOpen}
+          zone={zoneForPlan}
           onClose={closePlanModal}
           onSave={handleSavePlan}
-          zone={zoneForPlan}
         />
       )}
 
-      {/* Detailed Risk Assessment Modal */}
-      {zoneForAssessment && (
-      <DetailedRiskAssessmentModal 
-        isOpen={isAssessmentModalOpen}
-        onClose={closeAssessmentModal}
-        zone={zoneForAssessment}
-            incidents={mockIncidents.filter(inc => inc.location === zoneForAssessment.location)}
-      />
+      {/* Detailed Assessment Modal */}
+      {isAssessmentModalOpen && zoneForAssessment && (
+        <DetailedRiskAssessmentModal
+          isOpen={isAssessmentModalOpen}
+          zone={zoneForAssessment}
+          onClose={closeAssessmentModal}
+          incidents={[]}
+        />
       )}
     </div>
   );
