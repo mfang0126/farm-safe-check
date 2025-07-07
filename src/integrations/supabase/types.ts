@@ -9,61 +9,236 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      equipment: {
+      checklist_templates: {
         Row: {
+          category: string
+          created_at: string | null
+          description: string | null
           id: string
+          item_count: number
+          sections: Json
+          title: string
+          updated_at: string | null
           user_id: string
-          type: string
-          make_model: string
-          operator: string
-          last_inspection: string
-          next_inspection: string
-          purchase_date: string
-          status: "Passed" | "Needs Maintenance" | "Failed"
-          safety_features: string[]
-          notes: string | null
-          created_at: string
-          updated_at: string
         }
         Insert: {
+          category: string
+          created_at?: string | null
+          description?: string | null
           id?: string
+          item_count?: number
+          sections?: Json
+          title: string
+          updated_at?: string | null
           user_id: string
-          type: string
-          make_model: string
-          operator: string
-          last_inspection: string
-          next_inspection: string
-          purchase_date: string
-          status: "Passed" | "Needs Maintenance" | "Failed"
-          safety_features?: string[]
-          notes?: string | null
-          created_at?: string
-          updated_at?: string
         }
         Update: {
+          category?: string
+          created_at?: string | null
+          description?: string | null
           id?: string
+          item_count?: number
+          sections?: Json
+          title?: string
+          updated_at?: string | null
           user_id?: string
-          type?: string
-          make_model?: string
-          operator?: string
-          last_inspection?: string
-          next_inspection?: string
-          purchase_date?: string
-          status?: "Passed" | "Needs Maintenance" | "Failed"
-          safety_features?: string[]
+        }
+        Relationships: []
+      }
+      completed_checklists: {
+        Row: {
+          completed_at: string | null
+          completed_by: string
+          equipment_id: string | null
+          equipment_name: string
+          id: string
+          issues_count: number | null
+          notes: string | null
+          responses: Json
+          status: string | null
+          template_id: string | null
+          template_name: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          completed_by: string
+          equipment_id?: string | null
+          equipment_name: string
+          id?: string
+          issues_count?: number | null
           notes?: string | null
-          created_at?: string
-          updated_at?: string
+          responses?: Json
+          status?: string | null
+          template_id?: string | null
+          template_name: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          completed_by?: string
+          equipment_id?: string | null
+          equipment_name?: string
+          id?: string
+          issues_count?: number | null
+          notes?: string | null
+          responses?: Json
+          status?: string | null
+          template_id?: string | null
+          template_name?: string
+          user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "equipment_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: "completed_checklists_equipment_id_fkey"
+            columns: ["equipment_id"]
             isOneToOne: false
-            referencedRelation: "users"
+            referencedRelation: "equipment"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "completed_checklists_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "checklist_templates"
             referencedColumns: ["id"]
           },
         ]
+      }
+      equipment: {
+        Row: {
+          created_at: string | null
+          id: string
+          last_inspection: string | null
+          make_model: string
+          next_inspection: string | null
+          notes: string | null
+          operator: string
+          purchase_date: string | null
+          safety_features: string[] | null
+          status: string | null
+          type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          last_inspection?: string | null
+          make_model: string
+          next_inspection?: string | null
+          notes?: string | null
+          operator: string
+          purchase_date?: string | null
+          safety_features?: string[] | null
+          status?: string | null
+          type: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          last_inspection?: string | null
+          make_model?: string
+          next_inspection?: string | null
+          notes?: string | null
+          operator?: string
+          purchase_date?: string | null
+          safety_features?: string[] | null
+          status?: string | null
+          type?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      farm_maps: {
+        Row: {
+          background_image: Json | null
+          bounds: Json | null
+          config: Json | null
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          background_image?: Json | null
+          bounds?: Json | null
+          config?: Json | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          background_image?: Json | null
+          bounds?: Json | null
+          config?: Json | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      maintenance_tasks: {
+        Row: {
+          assigned_to: string
+          completed_date: string | null
+          created_at: string | null
+          description: string | null
+          due_date: string
+          equipment: string
+          equipment_id: string
+          id: string
+          priority: string
+          status: string
+          title: string
+          type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          assigned_to: string
+          completed_date?: string | null
+          created_at?: string | null
+          description?: string | null
+          due_date: string
+          equipment: string
+          equipment_id: string
+          id?: string
+          priority?: string
+          status?: string
+          title: string
+          type: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          assigned_to?: string
+          completed_date?: string | null
+          created_at?: string | null
+          description?: string | null
+          due_date?: string
+          equipment?: string
+          equipment_id?: string
+          id?: string
+          priority?: string
+          status?: string
+          title?: string
+          type?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -98,63 +273,82 @@ export type Database = {
         }
         Relationships: [        ]
       }
-      maintenance_tasks: {
+      risk_zones: {
         Row: {
-          id: string
-          user_id: string
-          title: string
-          equipment: string
-          equipment_id: string
-          type: "scheduled" | "unscheduled" | "inspection" | "repair"
-          status: "upcoming" | "overdue" | "completed" | "in-progress"
-          due_date: string
-          completed_date: string | null
-          assigned_to: string
-          description: string | null
-          priority: "low" | "medium" | "high"
+          action_plan: Json | null
+          category: string | null
+          color: string | null
           created_at: string
+          description: string | null
+          farm_map_id: string
+          geometry: Json | null
+          id: string
+          incidents_this_year: number | null
+          is_active: boolean | null
+          last_review: string | null
+          location: string | null
+          name: string
+          opacity: number | null
+          related_incident_ids: string[] | null
+          risk_level: Database["public"]["Enums"]["risk_level"] | null
           updated_at: string
+          user_id: string
         }
         Insert: {
-          id?: string
-          user_id: string
-          title: string
-          equipment: string
-          equipment_id: string
-          type: "scheduled" | "unscheduled" | "inspection" | "repair"
-          status?: "upcoming" | "overdue" | "completed" | "in-progress"
-          due_date: string
-          completed_date?: string | null
-          assigned_to: string
-          description?: string | null
-          priority?: "low" | "medium" | "high"
+          action_plan?: Json | null
+          category?: string | null
+          color?: string | null
           created_at?: string
+          description?: string | null
+          farm_map_id: string
+          geometry?: Json | null
+          id?: string
+          incidents_this_year?: number | null
+          is_active?: boolean | null
+          last_review?: string | null
+          location?: string | null
+          name: string
+          opacity?: number | null
+          related_incident_ids?: string[] | null
+          risk_level?: Database["public"]["Enums"]["risk_level"] | null
           updated_at?: string
+          user_id: string
         }
         Update: {
-          id?: string
-          user_id?: string
-          title?: string
-          equipment?: string
-          equipment_id?: string
-          type?: "scheduled" | "unscheduled" | "inspection" | "repair"
-          status?: "upcoming" | "overdue" | "completed" | "in-progress"
-          due_date?: string
-          completed_date?: string | null
-          assigned_to?: string
-          description?: string | null
-          priority?: "low" | "medium" | "high"
+          action_plan?: Json | null
+          category?: string | null
+          color?: string | null
           created_at?: string
+          description?: string | null
+          farm_map_id?: string
+          geometry?: Json | null
+          id?: string
+          incidents_this_year?: number | null
+          is_active?: boolean | null
+          last_review?: string | null
+          location?: string | null
+          name?: string
+          opacity?: number | null
+          related_incident_ids?: string[] | null
+          risk_level?: Database["public"]["Enums"]["risk_level"] | null
           updated_at?: string
+          user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "maintenance_tasks_user_id_fkey"
+            foreignKeyName: "risk_zones_farm_map_id_fkey"
+            columns: ["farm_map_id"]
+            isOneToOne: false
+            referencedRelation: "farm_maps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "risk_zones_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
-          },
+          }
         ]
       }
     }
@@ -165,7 +359,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      risk_level: "Critical" | "High" | "Medium" | "Low"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -280,6 +474,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      risk_level: ["Critical", "High", "Medium", "Low"],
+    },
   },
 } as const

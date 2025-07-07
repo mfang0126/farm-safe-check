@@ -27,6 +27,7 @@ export interface RiskZoneGeometry {
 }
 
 export interface ActionPlan {
+  [key: string]: string | 'Not Started' | 'In Progress' | 'Completed';
   details: string;
   status: 'Not Started' | 'In Progress' | 'Completed';
   lastUpdated: string;

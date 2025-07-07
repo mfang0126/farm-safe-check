@@ -1,9 +1,12 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { RiskZoneData } from '@/types/farmMap';
+import { Tables, Json } from '@/integrations/supabase/types';
 import { SafetyIncident } from '@/types/incidents';
+import { ActionPlan } from '@/types/farmMap';
 import { ClipboardList, AlertCircle, Calendar, Tag, Info } from 'lucide-react';
+
+type RiskZoneData = Tables<'risk_zones'>;
 
 interface DetailedRiskAssessmentModalProps {
   isOpen: boolean;
@@ -12,10 +15,17 @@ interface DetailedRiskAssessmentModalProps {
   incidents: SafetyIncident[];
 }
 
+function isActionPlan(obj: Json): obj is ActionPlan {
+    if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+      return false;
+    }
+    return 'details' in obj && 'status' in obj && 'lastUpdated' in obj;
+}
+
 const DetailedRiskAssessmentModal = ({ isOpen, onClose, zone, incidents }: DetailedRiskAssessmentModalProps) => {
   if (!zone) return null;
 
-  const getRiskLevelBadgeColor = (level: string) => {
+  const getRiskLevelBadgeColor = (level: string | null) => {
     switch (level) {
       case 'Critical': return 'bg-red-100 text-red-800 border-red-200';
       case 'High': return 'bg-orange-100 text-orange-800 border-orange-200';
@@ -24,8 +34,10 @@ const DetailedRiskAssessmentModal = ({ isOpen, onClose, zone, incidents }: Detai
       default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
+  
+  const actionPlan = isActionPlan(zone.action_plan) ? zone.action_plan : null;
 
-  const relatedIncidents = incidents.filter(inc => zone.relatedIncidentIds?.includes(inc.id));
+  const relatedIncidents = incidents.filter(inc => zone.related_incident_ids?.includes(inc.id));
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -33,8 +45,8 @@ const DetailedRiskAssessmentModal = ({ isOpen, onClose, zone, incidents }: Detai
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
             <span className="text-2xl">{zone.name}</span>
-            <Badge className={`text-base ${getRiskLevelBadgeColor(zone.riskLevel)}`}>
-              {zone.riskLevel} Risk
+            <Badge className={`text-base ${getRiskLevelBadgeColor(zone.risk_level)}`}>
+              {zone.risk_level} Risk
             </Badge>
           </DialogTitle>
           <DialogDescription>
@@ -54,7 +66,7 @@ const DetailedRiskAssessmentModal = ({ isOpen, onClose, zone, incidents }: Detai
                 <p><strong>Location:</strong> {zone.location}</p>
                 <p><strong>Description:</strong> {zone.description}</p>
                 <p className="text-xs text-muted-foreground pt-2">
-                  Last reviewed: {new Date(zone.lastReview).toLocaleDateString()}
+                  Last reviewed: {zone.last_review ? new Date(zone.last_review).toLocaleDateString() : 'N/A'}
                 </p>
               </CardContent>
             </Card>
@@ -64,20 +76,20 @@ const DetailedRiskAssessmentModal = ({ isOpen, onClose, zone, incidents }: Detai
                 <CardTitle className="flex items-center gap-2 text-lg"><ClipboardList size={20} /> Action Plan</CardTitle>
               </CardHeader>
               <CardContent>
-                {zone.actionPlan ? (
+                {actionPlan ? (
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
                       <p><strong>Status:</strong></p>
                       <Badge variant={
-                        zone.actionPlan.status === 'Completed' ? 'default' : 
-                        zone.actionPlan.status === 'In Progress' ? 'secondary' : 'outline'
+                        actionPlan.status === 'Completed' ? 'default' : 
+                        actionPlan.status === 'In Progress' ? 'secondary' : 'outline'
                       }>
-                        {zone.actionPlan.status}
+                        {actionPlan.status}
                       </Badge>
                     </div>
-                    <p className="text-sm bg-gray-50 p-3 rounded-md border">{zone.actionPlan.details}</p>
+                    <p className="text-sm bg-gray-50 p-3 rounded-md border">{actionPlan.details}</p>
                     <p className="text-xs text-muted-foreground pt-2">
-                      Last updated: {new Date(zone.actionPlan.lastUpdated).toLocaleDateString()}
+                      Last updated: {new Date(actionPlan.lastUpdated).toLocaleDateString()}
                     </p>
                   </div>
                 ) : (

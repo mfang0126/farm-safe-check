@@ -6,19 +6,30 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ActionPlan } from '@/types/farmMap';
 import { useToast } from '@/hooks/use-toast';
+import { Tables, Json } from '@/integrations/supabase/types';
+
+type RiskZoneData = Tables<'risk_zones'>;
+
+function isActionPlan(obj: Json): obj is ActionPlan {
+  if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+    return false;
+  }
+  return 'details' in obj && 'status' in obj && 'lastUpdated' in obj;
+}
 
 interface ActionPlanModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (newPlan: ActionPlan) => void;
-  zoneName: string;
-  actionPlan: ActionPlan | null | undefined;
+  zone: RiskZoneData;
 }
 
-const ActionPlanModal = ({ isOpen, onClose, onSave, zoneName, actionPlan }: ActionPlanModalProps) => {
+const ActionPlanModal = ({ isOpen, onClose, onSave, zone }: ActionPlanModalProps) => {
   const { toast } = useToast();
   const [details, setDetails] = useState('');
   const [status, setStatus] = useState<'Not Started' | 'In Progress' | 'Completed'>('Not Started');
+  
+  const actionPlan = isActionPlan(zone.action_plan) ? zone.action_plan : null;
 
   useEffect(() => {
     if (isOpen && actionPlan) {
@@ -47,14 +58,13 @@ const ActionPlanModal = ({ isOpen, onClose, onSave, zoneName, actionPlan }: Acti
       lastUpdated: new Date().toISOString(),
     };
     onSave(newPlan);
-    onClose();
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>Action Plan for "{zoneName}"</DialogTitle>
+          <DialogTitle>Action Plan for "{zone.name}"</DialogTitle>
           <DialogDescription>
             Create or update the mitigation strategy for this risk zone.
           </DialogDescription>
