@@ -26,6 +26,12 @@ export interface RiskZoneGeometry {
   rotation?: number; // rotation in degrees
 }
 
+export interface ActionPlan {
+  details: string;
+  status: 'Not Started' | 'In Progress' | 'Completed';
+  lastUpdated: string;
+}
+
 export interface RiskZoneData {
   id: string;
   name: string;
@@ -40,7 +46,8 @@ export interface RiskZoneData {
   // Additional metadata
   lastReview: string;
   incidentsThisYear: number;
-  actionPlanId?: string;
+  actionPlan?: ActionPlan;
+  relatedIncidentIds?: string[];
   isActive: boolean;
   // Visual properties
   geometry: RiskZoneGeometry;
@@ -169,6 +176,12 @@ export const createMockFarmMapData = (userId: string): FarmMapData => {
         lastReview: 'March 2024',
         incidentsThisYear: 3,
         isActive: true,
+        actionPlan: {
+          details: 'Implement one-way traffic flow and install new mirrors at blind spots. Mandate high-visibility vests for all personnel in the area.',
+          status: 'In Progress',
+          lastUpdated: 'May 2024'
+        },
+        relatedIncidentIds: ['inc-1', 'inc-2', 'inc-3'],
         geometry: {
           id: 'geo-1',
           name: 'Loading Bay Alpha',
@@ -193,6 +206,12 @@ export const createMockFarmMapData = (userId: string): FarmMapData => {
         lastReview: 'February 2024',
         incidentsThisYear: 1,
         isActive: true,
+        actionPlan: {
+          details: 'Review and update all Safety Data Sheets (SDS). Conduct mandatory refresher training on chemical handling for all relevant staff.',
+          status: 'Completed',
+          lastUpdated: 'April 2024'
+        },
+        relatedIncidentIds: ['inc-4'],
         geometry: {
           id: 'geo-2',
           name: 'Chemical Storage Area',
@@ -217,6 +236,11 @@ export const createMockFarmMapData = (userId: string): FarmMapData => {
         lastReview: 'March 2024',
         incidentsThisYear: 0,
         isActive: true,
+        actionPlan: {
+          details: 'Install additional dust monitoring sensors and schedule quarterly inspections of all ventilation systems.',
+          status: 'Not Started',
+          lastUpdated: 'June 2024'
+        },
         geometry: {
           id: 'geo-3',
           name: 'Grain Storage Facility',
@@ -241,6 +265,7 @@ export const createMockFarmMapData = (userId: string): FarmMapData => {
         lastReview: 'February 2024',
         incidentsThisYear: 2,
         isActive: true,
+        relatedIncidentIds: ['inc-5', 'inc-6'],
         geometry: {
           id: 'geo-4',
           name: 'Livestock Handling Yards',
