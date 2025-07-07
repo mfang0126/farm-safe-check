@@ -72,8 +72,8 @@ const RiskZone: React.FC<RiskZoneProps> = ({
   const handleDragEnd = (e: Konva.KonvaEventObject<DragEvent>) => {
     if (onPositionChange) {
       onPositionChange({
-        x: e.target.x(),
-        y: e.target.y()
+      x: e.target.x(),
+      y: e.target.y()
       });
     }
   };
@@ -165,7 +165,7 @@ const FarmMap: React.FC<FarmMapProps> = ({
         setDimensions({ width, height });
       }
     };
-    updateDimensions();
+      updateDimensions();
     window.addEventListener('resize', updateDimensions);
     return () => window.removeEventListener('resize', updateDimensions);
   }, []);
@@ -175,18 +175,18 @@ const FarmMap: React.FC<FarmMapProps> = ({
     const scaleBy = 1.05;
     const stage = e.target.getStage();
     if (!stage) return;
-    
+
     const oldScale = stage.scaleX();
     const pointer = stage.getPointerPosition();
     if (!pointer) return;
-
+    
     const mousePointTo = {
       x: (pointer.x - stage.x()) / oldScale,
       y: (pointer.y - stage.y()) / oldScale,
     };
 
     const newScale = e.evt.deltaY > 0 ? oldScale / scaleBy : oldScale * scaleBy;
-    
+
     setStage({
       scale: newScale,
       x: pointer.x - mousePointTo.x * newScale,
@@ -204,7 +204,7 @@ const FarmMap: React.FC<FarmMapProps> = ({
   const resetZoomAndPan = () => {
     setStage({ scale: 1, x: 0, y: 0 });
   };
-  
+
   const renderGrid = () => {
     if (!config.showGrid) return null;
     const lines = [];
@@ -244,7 +244,7 @@ const FarmMap: React.FC<FarmMapProps> = ({
       listening={false}
     />
   );
-  
+
   return (
     <div ref={containerRef} className="w-full h-full relative bg-gray-100 dark:bg-gray-800">
       <Stage
@@ -262,9 +262,9 @@ const FarmMap: React.FC<FarmMapProps> = ({
           {renderGrid()}
           {renderFarmBoundary()}
           {riskZones.map(zone => (
-            <RiskZone
-              key={zone.id}
-              zone={zone}
+              <RiskZone
+                key={zone.id}
+                zone={zone}
               isSelected={zone.id === selectedZoneId}
               isHovered={zone.id === hoveredZoneId}
               onMouseEnter={() => onZoneHover(zone)}
@@ -273,17 +273,54 @@ const FarmMap: React.FC<FarmMapProps> = ({
               onPositionChange={(pos) => onZonePositionChange(zone.id, pos)}
               showLabels={config.showLabels}
               draggable={isEditMode}
-            />
-          ))}
+              />
+            ))}
         </Layer>
       </Stage>
-      <div className="absolute top-2 right-2 flex flex-col space-y-2">
-        <Button size="icon" onClick={() => setStage(s => ({ ...s, scale: s.scale * 1.2 }))}><ZoomIn size={20}/></Button>
-        <Button size="icon" onClick={() => setStage(s => ({ ...s, scale: s.scale / 1.2 }))}><ZoomOut size={20}/></Button>
-        <Button size="icon" onClick={resetZoomAndPan}><RotateCcw size={20}/></Button>
+      {/* Risk Levels Legend */}
+      <div className="absolute top-4 left-4 bg-slate-100 backdrop-blur-sm border border-slate-300 rounded-lg p-3 shadow-lg">
+        <h3 className="text-sm font-semibold text-slate-800 mb-2">Risk Levels</h3>
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 bg-red-500 rounded"></div>
+            <span className="text-xs text-slate-700">Critical</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 bg-orange-500 rounded"></div>
+            <span className="text-xs text-slate-700">High</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 bg-yellow-500 rounded"></div>
+            <span className="text-xs text-slate-700">Medium</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 bg-green-500 rounded"></div>
+            <span className="text-xs text-slate-700">Low</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Zoom Controls - Bottom Right */}
+      <div className="absolute bottom-4 right-4 bg-gray-50 backdrop-blur-sm border border-gray-300 rounded-lg shadow-lg">
+        <div className="flex items-center">
+          <Button size="icon" variant="ghost" onClick={() => setStage(s => ({ ...s, scale: s.scale / 1.2 }))}>
+            <ZoomOut size={16}/>
+            </Button>
+          <span className="px-2 text-sm font-medium text-gray-700">
+            {Math.round(stage.scale * 100)}%
+          </span>
+          <Button size="icon" variant="ghost" onClick={() => setStage(s => ({ ...s, scale: s.scale * 1.2 }))}>
+            <ZoomIn size={16}/>
+            </Button>
+          <div className="border-l border-gray-300 ml-1">
+            <Button size="icon" variant="ghost" onClick={resetZoomAndPan}>
+              <RotateCcw size={16}/>
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );
 };
 
-export default FarmMap; 
+export default FarmMap;

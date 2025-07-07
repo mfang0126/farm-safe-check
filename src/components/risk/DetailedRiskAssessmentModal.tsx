@@ -34,7 +34,7 @@ const DetailedRiskAssessmentModal = ({ isOpen, onClose, zone, incidents }: Detai
       default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
-  
+
   const actionPlan = isActionPlan(zone.action_plan) ? zone.action_plan : null;
 
   const relatedIncidents = incidents.filter(inc => zone.related_incident_ids?.includes(inc.id));
