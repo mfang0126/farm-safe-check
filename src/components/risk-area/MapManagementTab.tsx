@@ -122,10 +122,11 @@ export const MapManagementTab = ({
             </>
           ) : (
             <>
-              <Button variant="outline" onClick={onDiscardChanges}>
+              {/* TODO: Discard Changes button is broken - temporarily hidden */}
+              {/* <Button variant="outline" onClick={onDiscardChanges}>
                 <RotateCcw className="mr-2" size={16} />
                 Discard Changes
-              </Button>
+              </Button> */}
               <Button onClick={onSaveChanges}>
                 <Save className="mr-2" size={16} />
                 Save Changes
