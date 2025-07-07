@@ -46,7 +46,8 @@ const RiskZone: React.FC<RiskZoneProps> = ({
   showLabels,
   draggable
 }) => {
-  const shapeRef = useRef<Konva.Shape>(null);
+  const groupRef = useRef<Konva.Group>(null);
+  const [currentPosition, setCurrentPosition] = useState({ x: 0, y: 0 });
   const riskLevel = zone.risk_level || 'Low';
   const style = RISK_LEVEL_STYLES[riskLevel];
   
@@ -63,24 +64,41 @@ const RiskZone: React.FC<RiskZoneProps> = ({
     rotation?: number;
   } | null;
 
+  const { x, y, width, height, radius, type, rotation } = geometry || { x: 0, y: 0, width: 0, height: 0, radius: 0, type: 'rectangle' as const, rotation: 0 };
+
+  // Initialize current position from geometry
+  useEffect(() => {
+    if (geometry) {
+      setCurrentPosition({ x, y });
+    }
+  }, [geometry, x, y]);
+
   if (!geometry) {
     return null; // Or some placeholder
   }
-  
-  const { x, y, width, height, radius, type, rotation } = geometry;
 
-  const handleDragEnd = (e: Konva.KonvaEventObject<DragEvent>) => {
-    if (onPositionChange) {
-      onPositionChange({
+  const handleDragMove = (e: Konva.KonvaEventObject<DragEvent>) => {
+    // Update current position during drag so labels follow
+    setCurrentPosition({
       x: e.target.x(),
       y: e.target.y()
-      });
+    });
+  };
+
+  const handleDragEnd = (e: Konva.KonvaEventObject<DragEvent>) => {
+    const newPos = {
+      x: e.target.x(),
+      y: e.target.y()
+    };
+    setCurrentPosition(newPos);
+    if (onPositionChange) {
+      onPositionChange(newPos);
     }
   };
 
   const commonProps = {
-    x,
-    y,
+    x: 0, // Relative to group
+    y: 0, // Relative to group
     rotation: rotation || 0,
     fill: isSelected ? style.selectedColor : isHovered ? style.hoverColor : style.color,
     stroke: style.strokeColor,
@@ -92,8 +110,6 @@ const RiskZone: React.FC<RiskZoneProps> = ({
     onMouseEnter,
     onMouseLeave,
     onClick,
-    draggable,
-    onDragEnd: handleDragEnd,
     listening: true,
   };
 
@@ -112,8 +128,9 @@ const RiskZone: React.FC<RiskZoneProps> = ({
   const renderLabel = () => {
     if (!showLabels) return null;
     
-    const labelX = x;
-    const labelY = y - 20;
+    // Position label relative to the group, so it moves with the shape
+    const labelX = 0; // Center of shape
+    const labelY = -20; // Above the shape
 
     return (
       <Text
@@ -131,7 +148,14 @@ const RiskZone: React.FC<RiskZoneProps> = ({
   };
 
   return (
-    <Group>
+    <Group
+      ref={groupRef}
+      x={currentPosition.x}
+      y={currentPosition.y}
+      draggable={draggable}
+      onDragMove={handleDragMove}
+      onDragEnd={handleDragEnd}
+    >
       {renderShape()}
       {renderLabel()}
     </Group>
@@ -277,8 +301,8 @@ const FarmMap: React.FC<FarmMapProps> = ({
             ))}
         </Layer>
       </Stage>
-      {/* Risk Levels Legend */}
-      <div className="absolute top-4 left-4 bg-slate-100 backdrop-blur-sm border border-slate-300 rounded-lg p-3 shadow-lg">
+      {/* Risk Levels Legend - Moved to top right */}
+      <div className="absolute top-4 right-4 bg-slate-100 backdrop-blur-sm border border-slate-300 rounded-lg p-3 shadow-lg">
         <h3 className="text-sm font-semibold text-slate-800 mb-2">Risk Levels</h3>
         <div className="space-y-1">
           <div className="flex items-center gap-2">

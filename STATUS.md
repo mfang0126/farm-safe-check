@@ -1,8 +1,18 @@
 # Farm Safe Check - Status
 
-## Current Status: Risk Area UI Restoration to Previous Design Complete ✅
+## Current Status: Risk Area Map UI Improvements Complete ✅
 
 ### Recent Changes (2025-01-28)
+
+#### Risk Area Map UI Improvements - COMPLETED
+- ✅ **Risk Levels Legend Repositioned**: Moved from top-left to top-right corner for better visual balance
+- ✅ **Enhanced Label Following During Drag**: Zone labels now follow smoothly when dragging risk areas
+  - Restructured RiskZone component to use Konva Group container
+  - Labels positioned relative to shape, ensuring they move together
+  - Added real-time position updates during drag operations
+  - Improved user experience during zone repositioning
+- ✅ **Code Quality**: Fixed React Hooks usage to comply with rules (moved hooks before conditional returns)
+- ✅ **User Experience**: Enhanced visual feedback and interaction smoothness
 
 #### Risk Area UI Restoration to Previous Design - COMPLETED
 - ✅ **Successfully restored previous UI design** while preserving all modern functionality and database integration
@@ -17,7 +27,7 @@
 - ✅ **View Map Tab**:
   - Restored "Zone Position Management" header and description
   - Restored proper button layout: "Add Zone to Map" and "Edit Positions"
-  - Restored Risk Levels legend with color indicators
+  - Restored Risk Levels legend with color indicators (now positioned top-right)
   - Maintained all map functionality and controls
 - ✅ **Modal Components**: Updated to work with new/previous UI structure
 - ✅ **Database Functionality**: All CRUD operations, action plans, and data persistence fully preserved
