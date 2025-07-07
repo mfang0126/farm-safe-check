@@ -194,6 +194,31 @@ const FarmMap: React.FC<FarmMapProps> = ({
     return () => window.removeEventListener('resize', updateDimensions);
   }, []);
 
+  // Center the farm map when dimensions or mapBounds change
+  useEffect(() => {
+    const centerMap = () => {
+      const canvasCenterX = dimensions.width / 2;
+      const canvasCenterY = dimensions.height / 2;
+      
+      const farmCenterX = mapBounds.width / 2;
+      const farmCenterY = mapBounds.height / 2;
+      
+      const offsetX = canvasCenterX - farmCenterX;
+      const offsetY = canvasCenterY - farmCenterY;
+      
+      setStage(prevStage => ({
+        ...prevStage,
+        x: offsetX,
+        y: offsetY
+      }));
+    };
+
+    // Only center if we have valid dimensions and the stage hasn't been manually moved
+    if (dimensions.width > 0 && dimensions.height > 0 && stage.x === 0 && stage.y === 0) {
+      centerMap();
+    }
+  }, [dimensions, mapBounds, stage.x, stage.y]);
+
   const handleWheel = (e: Konva.KonvaEventObject<WheelEvent>) => {
     e.evt.preventDefault();
     const scaleBy = 1.05;
@@ -226,7 +251,16 @@ const FarmMap: React.FC<FarmMapProps> = ({
   };
 
   const resetZoomAndPan = () => {
-    setStage({ scale: 1, x: 0, y: 0 });
+    const canvasCenterX = dimensions.width / 2;
+    const canvasCenterY = dimensions.height / 2;
+    
+    const farmCenterX = mapBounds.width / 2;
+    const farmCenterY = mapBounds.height / 2;
+    
+    const offsetX = canvasCenterX - farmCenterX;
+    const offsetY = canvasCenterY - farmCenterY;
+    
+    setStage({ scale: 1, x: offsetX, y: offsetY });
   };
 
   const renderGrid = () => {
@@ -274,7 +308,6 @@ const FarmMap: React.FC<FarmMapProps> = ({
       <Stage
         width={dimensions.width}
         height={dimensions.height}
-        onWheel={handleWheel}
         onClick={handleStageClick}
         scaleX={stage.scale}
         scaleY={stage.scale}

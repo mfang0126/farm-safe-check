@@ -149,11 +149,11 @@ const RiskArea = () => {
 
   const getRiskLevelBadgeColor = (level: string | null) => {
     switch (level) {
-      case 'Critical': return 'bg-red-100 text-red-800 border-red-200';
-      case 'High': return 'bg-orange-100 text-orange-800 border-orange-200';
-      case 'Medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'Low': return 'bg-green-100 text-green-800 border-green-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'Critical': return 'bg-red-100 text-red-800 border-red-200 hover:bg-red-100';
+      case 'High': return 'bg-orange-100 text-orange-800 border-orange-200 hover:bg-orange-100';
+      case 'Medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-yellow-100';
+      case 'Low': return 'bg-green-100 text-green-800 border-green-200 hover:bg-green-100';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-100';
     }
   };
 
@@ -440,6 +440,7 @@ const RiskArea = () => {
     toast({
       title: "Changes Saved",
       description: "All zone position changes have been saved.",
+      duration: 3000,
     });
     setIsEditMode(false);
   };
@@ -454,6 +455,7 @@ const RiskArea = () => {
     toast({
       title: "Changes Discarded",
       description: "All unsaved position changes have been discarded.",
+      duration: 3000,
     });
   };
 
@@ -524,52 +526,66 @@ const RiskArea = () => {
             ) : (
               riskZones.map((zone) => {
                 const geometry = getExtendedGeometry(zone);
+                // Create a normalized zone object to match the expected format
+                const normalizedZone = {
+                  ...zone,
+                  riskLevel: zone.risk_level,
+                  lastReview: zone.last_review,
+                  incidentsThisYear: zone.incidents_this_year || 0,
+                  actionPlan: geometry.actionPlan,
+                  relatedIncidentIds: zone.incidents_this_year > 0 ? Array.from({ length: zone.incidents_this_year }, (_, i) => `incident-${zone.id}-${i}`) : []
+                };
+                
                 return (
                   <Card key={zone.id} className="hover:shadow-md transition-shadow">
                     <CardContent className="p-6">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
-                            <h3 className="font-semibold text-lg">{zone.name}</h3>
-                            <Badge className={getRiskLevelBadgeColor(zone.risk_level)}>
-                              {zone.risk_level}
+                            <h3 className="font-semibold text-lg">{normalizedZone.name}</h3>
+                            <Badge className={getRiskLevelBadgeColor(normalizedZone.riskLevel)}>
+                              {normalizedZone.riskLevel}
                             </Badge>
                           </div>
-                          <p className="text-sm text-muted-foreground mb-1">{zone.category}</p>
-                          <p className="text-sm mb-2">{zone.description}</p>
+                          <p className="text-sm text-muted-foreground mb-1">{normalizedZone.category}</p>
+                          <p className="text-sm mb-2">{normalizedZone.description}</p>
                           <p className="text-sm text-muted-foreground mb-2">
-                            <strong>Location:</strong> {zone.location}
+                            <strong>Location:</strong> {normalizedZone.location}
                           </p>
-                          {/* Action Plan Display - Enhanced for database zones */}
-                          {geometry.actionPlan && (
+                          {normalizedZone.actionPlan && (
                             <div className="text-xs mt-2 p-2 bg-gray-50 rounded-md border">
                               <p className="font-semibold flex items-center gap-1.5">
                                 <ClipboardList size={14} />
                                 Action Plan: <span className={`font-bold ${
-                                  geometry.actionPlan.status === 'Completed' ? 'text-green-600' : 
-                                  geometry.actionPlan.status === 'In Progress' ? 'text-blue-600' : ''
-                                }`}>{geometry.actionPlan.status}</span>
+                                  normalizedZone.actionPlan.status === 'Completed' ? 'text-green-600' : 
+                                  normalizedZone.actionPlan.status === 'In Progress' ? 'text-blue-600' : ''
+                                }`}>{normalizedZone.actionPlan.status}</span>
                               </p>
                               <p className="text-muted-foreground mt-1 truncate">
-                                {geometry.actionPlan.details}
+                                {normalizedZone.actionPlan.details}
                               </p>
                             </div>
                           )}
                           <div className="text-xs text-muted-foreground mt-2 flex items-center justify-between">
-                            <span>Last review: {zone.last_review ? new Date(zone.last_review).toLocaleDateString() : 'Never'} | {zone.incidents_this_year || 0} incidents this year</span>
-                            {zone.incidents_this_year && zone.incidents_this_year > 0 && (
+                            <span>Last review: {normalizedZone.lastReview ? new Date(normalizedZone.lastReview).toLocaleDateString() : 'Never'} | {normalizedZone.incidentsThisYear} incidents this year</span>
+                            {normalizedZone.relatedIncidentIds && normalizedZone.relatedIncidentIds.length > 0 && (
                               <TooltipProvider>
                                 <Tooltip>
                                   <TooltipTrigger asChild>
                                     <span className="flex items-center gap-1 font-semibold text-amber-600 cursor-pointer">
                                       <AlertCircle size={14} />
-                                      {zone.incidents_this_year} Incident(s)
+                                      {normalizedZone.relatedIncidentIds.length} Incident(s)
                                     </span>
                                   </TooltipTrigger>
                                   <TooltipContent>
                                     <div className="p-1">
                                       <h4 className="font-bold mb-1">Recent Incidents</h4>
-                                      <p className="text-sm">View incident details in the Risk Dashboard</p>
+                                      <ul className="list-disc list-inside">
+                                        {mockIncidents
+                                          .filter(inc => normalizedZone.relatedIncidentIds?.includes(inc.id))
+                                          .map(inc => <li key={inc.id}>{inc.title}</li>)
+                                        }
+                                      </ul>
                                     </div>
                                   </TooltipContent>
                                 </Tooltip>

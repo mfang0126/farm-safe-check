@@ -27,11 +27,11 @@ const DetailedRiskAssessmentModal = ({ isOpen, onClose, zone, incidents }: Detai
 
   const getRiskLevelBadgeColor = (level: string | null) => {
     switch (level) {
-      case 'Critical': return 'bg-red-100 text-red-800 border-red-200';
-      case 'High': return 'bg-orange-100 text-orange-800 border-orange-200';
-      case 'Medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'Low': return 'bg-green-100 text-green-800 border-green-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'Critical': return 'bg-red-100 text-red-800 border-red-200 hover:bg-red-100';
+      case 'High': return 'bg-orange-100 text-orange-800 border-orange-200 hover:bg-orange-100';
+      case 'Medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-yellow-100';
+      case 'Low': return 'bg-green-100 text-green-800 border-green-200 hover:bg-green-100';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-100';
     }
   };
 
