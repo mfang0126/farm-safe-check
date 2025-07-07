@@ -16,6 +16,7 @@ interface ExtendedGeometry {
   y?: number;
   width?: number;
   height?: number;
+  radius?: number;
   rotation?: number;
   actionPlan?: ActionPlan;
 }
@@ -275,6 +276,51 @@ export const useRiskZones = () => {
     }
   };
 
+  const updateZoneGeometry = async (zoneId: string, newGeometry: { x: number; y: number; width?: number; height?: number; radius?: number }): Promise<boolean> => {
+    if (!farmMapData || !user) return false;
+
+    const zone = riskZones.find(z => z.id === zoneId);
+    if (!zone) return false;
+
+    try {
+      const currentGeometry = zone.geometry as ExtendedGeometry;
+      const updatedGeometry: ExtendedGeometry = {
+        ...currentGeometry,
+        x: newGeometry.x,
+        y: newGeometry.y,
+        ...(newGeometry.width !== undefined && { width: newGeometry.width }),
+        ...(newGeometry.height !== undefined && { height: newGeometry.height }),
+        ...(newGeometry.radius !== undefined && { radius: newGeometry.radius })
+      };
+
+      const { data: updatedZone, error } = await riskService.updateRiskZone(
+        zoneId,
+        user.id,
+        { geometry: updatedGeometry as unknown as Json }
+      );
+
+      if (error || !updatedZone) {
+        throw new Error(error?.message || "Failed to update zone geometry.");
+      }
+
+      setFarmMapData(prev => prev ? {
+        ...prev,
+        risk_zones: prev.risk_zones.map(z =>
+          z.id === zoneId ? updatedZone : z
+        )
+      } : null);
+
+      return true;
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update zone size. Please try again.",
+        variant: "destructive"
+      });
+      return false;
+    }
+  };
+
   const saveActionPlan = async (zone: RiskZoneData, plan: ActionPlan): Promise<boolean> => {
     if (!farmMapData || !user) return false;
 
@@ -337,6 +383,7 @@ export const useRiskZones = () => {
     updateZone,
     deleteZone,
     updateZonePosition,
+    updateZoneGeometry,
     saveActionPlan,
     refreshData,
   };

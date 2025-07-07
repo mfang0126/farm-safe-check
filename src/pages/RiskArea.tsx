@@ -27,6 +27,7 @@ const RiskArea = () => {
     updateZone, 
     deleteZone, 
     updateZonePosition, 
+    updateZoneGeometry,
     saveActionPlan, 
     refreshData 
   } = useRiskZones();
@@ -84,6 +85,21 @@ const RiskArea = () => {
     }
   };
 
+  const handleDeleteZone = async () => {
+    if (!editingZone) return;
+    
+    const confirmDelete = window.confirm(
+      `Are you sure you want to delete "${editingZone.name}"?\n\nThis action cannot be undone and will permanently remove the risk zone from your farm map.`
+    );
+    
+    if (confirmDelete) {
+      const success = await deleteZone(editingZone.id);
+      if (success) {
+        handleCloseFormModal();
+      }
+    }
+  };
+
   // Map operations
   const handleZoneClick = (zone: RiskZoneData) => {
     setSelectedZone(zone);
@@ -99,6 +115,10 @@ const RiskArea = () => {
 
   const handleZonePositionChange = async (zoneId: string, newPosition: { x: number; y: number }) => {
     await updateZonePosition(zoneId, newPosition);
+  };
+
+  const handleZoneGeometryChange = async (zoneId: string, newGeometry: { x: number; y: number; width?: number; height?: number; radius?: number }) => {
+    await updateZoneGeometry(zoneId, newGeometry);
   };
 
   const toggleEditMode = () => {
@@ -187,6 +207,8 @@ const RiskArea = () => {
           onZoneHover={handleZoneHover}
           onZoneSelect={handleZoneSelect}
           onZonePositionChange={handleZonePositionChange}
+          onZoneGeometryChange={handleZoneGeometryChange}
+          onZoneDelete={deleteZone}
           onEditZone={handleOpenEditModal}
           onManagePlan={handleOpenPlanModal}
           setDraggedZoneId={setDraggedZoneId}
@@ -196,7 +218,7 @@ const RiskArea = () => {
   ];
 
   return (
-    <React.Fragment>
+    <>
       <TabPageLayout
         title="Risk Area Management"
         description="Define and monitor risk zones across your farm operations"
@@ -215,6 +237,7 @@ const RiskArea = () => {
         }
         entity={editingZone}
         onSubmit={handleSubmitZone}
+        onDelete={editingZone ? handleDeleteZone : undefined}
         loading={loading}
         canSubmit={canSubmit()}
       >
@@ -303,7 +326,7 @@ const RiskArea = () => {
           incidents={[]}
         />
       )}
-    </React.Fragment>
+    </>
   );
 };
 

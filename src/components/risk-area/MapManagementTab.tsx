@@ -9,7 +9,8 @@ import {
   RotateCcw,
   MapPin,
   Edit,
-  ClipboardList
+  ClipboardList,
+  Trash2
 } from 'lucide-react';
 import { Tables } from '@/integrations/supabase/types';
 import FarmMap from '@/components/FarmMap';
@@ -42,6 +43,8 @@ interface MapManagementTabProps {
   onZoneHover: (zone: RiskZoneData | null) => void;
   onZoneSelect: (zone: RiskZoneData | null) => void;
   onZonePositionChange: (zoneId: string, newPosition: { x: number; y: number }) => void;
+  onZoneGeometryChange?: (zoneId: string, newGeometry: { x: number; y: number; width?: number; height?: number; radius?: number }) => void;
+  onZoneDelete?: (zoneId: string) => void;
   onEditZone: (zone: RiskZoneData) => void;
   onManagePlan: (zone: RiskZoneData) => void;
   setDraggedZoneId: (id: string | null) => void;
@@ -61,6 +64,8 @@ export const MapManagementTab = ({
   onZoneHover,
   onZoneSelect,
   onZonePositionChange,
+  onZoneGeometryChange,
+  onZoneDelete,
   onEditZone,
   onManagePlan,
   setDraggedZoneId
@@ -79,6 +84,19 @@ export const MapManagementTab = ({
     return zone.geometry as ExtendedGeometry;
   };
 
+  const handleDeleteZone = (zone: RiskZoneData) => {
+    if (!onZoneDelete) return;
+    
+    const confirmDelete = window.confirm(
+      `Are you sure you want to delete "${zone.name}"?\n\nThis action cannot be undone and will permanently remove the risk zone from your farm map.`
+    );
+    
+    if (confirmDelete) {
+      onZoneDelete(zone.id);
+      onZoneSelect(null); // Deselect the zone after deletion
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -86,8 +104,8 @@ export const MapManagementTab = ({
           <h2 className="text-lg font-semibold">Zone Position Management</h2>
           <p className="text-sm text-muted-foreground">
             {isEditMode 
-              ? "Click and drag zones to reposition them. Click save when finished." 
-              : "View and manage zone positions on the farm map"}
+              ? "Click and drag zones to reposition them. Select a zone to resize it. Click save when finished." 
+              : "View and manage zone positions and sizes on the farm map"}
           </p>
         </div>
         <div className="flex gap-2">
@@ -98,8 +116,8 @@ export const MapManagementTab = ({
                 Add Zone to Map
               </Button>
               <Button onClick={onToggleEditMode}>
-                <Move className="mr-2" size={16} />
-                Edit Positions
+                <Edit className="mr-2" size={16} />
+                Edit
               </Button>
             </>
           ) : (
@@ -120,7 +138,7 @@ export const MapManagementTab = ({
       <Card>
         <CardContent className="p-0">
           {farmMapData ? (
-            <div className="relative border rounded-lg overflow-hidden">
+            <div className="relative border-2 rounded-lg overflow-hidden">
               <FarmMap
                 farmMapData={farmMapData}
                 selectedZoneId={selectedZone?.id || null}
@@ -130,6 +148,8 @@ export const MapManagementTab = ({
                 onZoneSelect={onZoneSelect}
                 isEditMode={isEditMode}
                 onZonePositionChange={onZonePositionChange}
+                onZoneGeometryChange={onZoneGeometryChange}
+                onZoneDelete={onZoneDelete}
                 draggedZoneId={draggedZoneId}
                 setDraggedZoneId={setDraggedZoneId}
                 className="relative"
@@ -138,7 +158,7 @@ export const MapManagementTab = ({
               {/* Edit mode indicator */}
               {isEditMode && (
                 <div className="absolute top-4 left-4 bg-blue-100 border border-blue-200 text-blue-800 px-3 py-1 rounded-md text-sm font-medium">
-                  Edit Mode: Click and drag zones to reposition
+                  Edit Mode: Drag to reposition • Select to resize • Delete key to remove
                 </div>
               )}
             </div>
@@ -151,62 +171,91 @@ export const MapManagementTab = ({
               </div>
             </div>
           )}
-          
-          {/* Selected zone info panel */}
-          {selectedZone && (
-            <div className="p-4 bg-blue-50 border-t border-blue-200">
-              <div className="flex items-center justify-between mb-2">
-                <h4 className="font-semibold text-lg flex items-center gap-2">
-                  {selectedZone.name}
-                  <Badge className={getRiskLevelBadgeColor(selectedZone.risk_level)}>
-                    {selectedZone.risk_level}
-                  </Badge>
-                </h4>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => onZoneSelect(null)}
-                >
-                  ✕
-                </Button>
-              </div>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <p><strong>Category:</strong> {selectedZone.category}</p>
-                  <p><strong>Location:</strong> {selectedZone.location}</p>
-                </div>
-                <div>
-                  {(() => {
-                    const geometry = getExtendedGeometry(selectedZone);
-                    return (
-                      <>
-                        <p><strong>Position:</strong> ({Math.round(geometry.x || 0)}, {Math.round(geometry.y || 0)})</p>
-                        <p><strong>Size:</strong> {Math.round(geometry.width || 0)} × {Math.round(geometry.height || 0)}</p>
-                      </>
-                    );
-                  })()}
-                </div>
-              </div>
-              {!isEditMode && (
-                <div className="mt-3 flex gap-2">
-                  <Button size="sm" variant="outline" onClick={() => onEditZone(selectedZone)}>
-                    <Edit className="mr-1" size={14} />
-                    Edit Info
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => onManagePlan(selectedZone)}>
-                    <ClipboardList className="mr-1" size={14} />
-                    Manage Plan
-                  </Button>
-                  <Button size="sm" onClick={onToggleEditMode}>
-                    <Move className="mr-1" size={14} />
-                    Edit Position
-                  </Button>
-                </div>
-              )}
-            </div>
-          )}
         </CardContent>
       </Card>
+      
+      {/* Selected zone info panel */}
+      {selectedZone && (
+        <Card className="mt-4">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="font-semibold text-lg flex items-center gap-2">
+                {selectedZone.name}
+                <Badge className={getRiskLevelBadgeColor(selectedZone.risk_level)}>
+                  {selectedZone.risk_level}
+                </Badge>
+              </h4>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => onZoneSelect(null)}
+              >
+                ✕
+              </Button>
+            </div>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <p><strong>Category:</strong> {selectedZone.category}</p>
+                <p><strong>Location:</strong> {selectedZone.location}</p>
+              </div>
+              <div>
+                {(() => {
+                  const geometry = getExtendedGeometry(selectedZone);
+                  return (
+                    <>
+                      <p><strong>Position:</strong> ({Math.round(geometry.x || 0)}, {Math.round(geometry.y || 0)})</p>
+                      <p><strong>Size:</strong> {Math.round(geometry.width || 0)} × {Math.round(geometry.height || 0)}</p>
+                    </>
+                  );
+                })()}
+              </div>
+            </div>
+            {!isEditMode && (
+              <div className="mt-3 flex gap-2">
+                <Button size="sm" variant="outline" onClick={() => onEditZone(selectedZone)}>
+                  <Edit className="mr-1" size={14} />
+                  Edit Info
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => onManagePlan(selectedZone)}>
+                  <ClipboardList className="mr-1" size={14} />
+                  Manage Plan
+                </Button>
+                <Button size="sm" onClick={onToggleEditMode}>
+                  <Edit className="mr-1" size={14} />
+                  Edit
+                </Button>
+                {onZoneDelete && (
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    onClick={() => handleDeleteZone(selectedZone)}
+                    className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+                  >
+                    <Trash2 className="mr-1" size={14} />
+                    Delete
+                  </Button>
+                )}
+              </div>
+            )}
+            {isEditMode && onZoneDelete && (
+              <div className="mt-3 flex justify-between items-center">
+                <p className="text-sm text-gray-600">
+                  Press <kbd className="px-1 py-0.5 bg-gray-100 border border-gray-300 rounded text-xs">Delete</kbd> or click button to remove zone
+                </p>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={() => handleDeleteZone(selectedZone)}
+                  className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+                >
+                  <Trash2 className="mr-1" size={14} />
+                  Delete Zone
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }; 
